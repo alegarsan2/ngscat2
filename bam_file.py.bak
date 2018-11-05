@@ -1,0 +1,111 @@
+
+
+import gc
+import time
+import random
+import pysam
+import copy
+import os
+import sys
+import string
+import sets
+try:
+    import numpy
+except ImportError:
+    print('WARNING: module numpy was not loaded.')
+
+try:
+    import progressbar
+except ImportError:
+    print('WARNING: module progressbar was not loaded.')
+
+import xlwt
+
+from matplotlib import pyplot
+
+import bed_file
+
+
+# TMP ='/home/fjavier/tmp/'
+TMP = '/home/agarcia/tmp/'
+# CHR_LENGTHS = '/data/reference_genomes/human/human_g1k_v37.genome'
+CHR_LENGTHS = '/home/javi/MGP/data/reference_genomes/human/human_g1k_v37.genome'
+
+
+class bam_file(pysam.Samfile):
+
+    def __init__(self, _filename=None, mode='rb', header=None):
+        # self.filename = _filename
+        self._nreads = None
+
+        pysam.Samfile.__init__(self, _filename, mode, header=header)
+
+        def issorted(self):
+            print
+            'Checking sorting of ' + self.filename
+
+            visitedcontigs = sets.Set()
+            previouscontig = None
+            previousstart = None
+            previousend = None
+
+            try:
+                read = self.next()
+                readsavailable = True
+                sorted = True
+                currend = read.pos + sum([nbases[1] for nbases in read.cigar if nbases[0] <> 1]) - 1
+            except StopIteration:
+                readsavailable = False
+
+            rc = 1
+            #		while(readsavailable and ((previouscontig<>read.rname and (read.rname not in visitedcontigs)) or
+            #								 (previousstart<read.pos or (previousstart==read.pos and previousend<=currend)))):
+            while (readsavailable and ((previouscontig <> read.rname and (read.rname not in visitedcontigs)) or
+                                       (previousstart <= read.pos))):
+
+                if (not rc % 1000000):
+                    print
+                    str(rc) + ' reads checked'
+
+                visitedcontigs.add(read.rname)
+                previouscontig = read.rname
+                previousstart = read.pos
+                previousend = currend
+
+                try:
+                    read = self.next()
+                    readsavailable = True
+                    currend = read.pos + sum([nbases[1] for nbases in read.cigar if nbases[0] <> 1]) - 1
+                except StopIteration:
+                    readsavailable = False
+                except TypeError:
+                    if (read.is_unmapped):
+                        print
+                        'ERROR: unmapped reads found at ' + self.filename
+                    else:
+                        print
+                        'ERROR: incorrect bam format'
+                    print
+                    '	Read position: ' + str(rc)
+                    print
+                    '	Alignment entry: ' + str(read)
+                    print
+                    '	Exiting.'
+                    sys.exit(1)
+
+                rc += 1
+
+            print
+            '	Done.'
+
+            if (readsavailable):
+                print
+                'WARNING: bam not sorted.'
+                print
+                '	Check read ' + str(read)
+                print
+                '	and the read before.'
+
+                return False
+            else:
+                return True
