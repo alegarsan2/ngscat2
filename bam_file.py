@@ -647,15 +647,14 @@ class bam_file(pysam.Samfile):
             outdir: Output folder
             bamlist: list of bam_file objects representing bam files which are also wanted to be analyzed.
             legend: list of strings containing the label to tag each bam file in the xls and png files that will be created.
-            executiongranted: multiprocessing.Semaphore object to control the use of machine resources.
+
             onoff_status: multiprocessing.Value object to return whether the number of on-target reads is extremely low (False) or not (True)
             duplicates_status: multiprocessing.Value object to return whether the number of duplicated reads on-target is greater than the number of duplicated
                 off-target (False) or not (True).
             enrichment: multiprocessing.Array objecto to return the enrichment value for each bam (on-target reads per Kb)/(off target reads per Kb)
             percontarget: multiprocessing.Array object to return percentaje of reads on target for each bam file
             tmpdir: string containing the path to a temporary directory where temporary files will be stored.
-        Outputs: two new files named reads_on_target.png and reads_on_target.xls will be generated at 'outdir'. In addition 'status' will be modified to indicate
-            whether the number of on-target reads is extremely low (False) or not (True)
+        Outputs: dictionary and json with information and bam results in the key 'results'
         ************************************************************************************************************************************************************"""
         read_on_results = {}
         global TMP
@@ -668,8 +667,7 @@ class bam_file(pysam.Samfile):
         # Create a list of bam_file objects which includes self. Generates an array with the total number of reads in each bam.
         bamlist = [self] + bamlist
         tread = []
-        for bam in bamlist:
-            tread.append(bam.nreads())
+
 
         # Calculate number of reads and duplicated reads on/off target per chromosome
         nread = []
@@ -686,6 +684,7 @@ class bam_file(pysam.Samfile):
         #Adding data
         for bam in bamlist:
             nread_tmp, onperchr_tmp, totalperchr_tmp, onduplicates_tmp, offduplicates_tmp = bam.myReadsOnTarget(bed)
+            tread.append(bam.nreads())
             nread.append(nread_tmp)
             onperchr.append(onperchr_tmp)
             totalperchr.append(totalperchr_tmp)
@@ -712,8 +711,12 @@ class bam_file(pysam.Samfile):
             percontarget.append(nread[i]*100.0/tread[i])
             retonduplicates.append(sum(onduplicates[i]) * 100.0 / tread[i])
             retoffduplicates.append(sum(offduplicates[i]) * 100.0 / tread[i])
-            perconperchr.append({key: (onperchr[i][key] * 100.0/totalperchr[i][key] if totalperchr[i][key] > 0 else 0) for key in onperchr[i]}) #si alguno es ifual a 0 divide entre 0
 
+            #Avoid 0 division
+            perconperchr.append({key: (onperchr[i][key] * 100.0/totalperchr[i][key] if totalperchr[i][key] > 0 else 0) for key in onperchr[i]})
+
+
+            # Select the largest one. Use the keys and fill with 0 until key lenght
             if len(onduplicates[i].tolist()) >= len(offduplicates[i].tolist()):
                 onduplicatesresult.append({str(key + 1) + 'x': value for key, value in enumerate(onduplicates[i].tolist())})
 

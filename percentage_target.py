@@ -10,10 +10,11 @@ import plotly
 def on_target_plot(read_on_results):
     """*****************************************************************************************************************
         Task:ALEGARSAN this method is dependant on "reads_on_target".
-            Generates a graph and an xls file that summarize on/off target read results.
+            Generates a graph interactive plot
         Inputs:
-            read_of_target: Dict, with same data as json generated.
+            read_on_results: Dict, with same data as json generated.
             Data used results_on_target['results'] = list of dictionaries with reads data of each
+
             bamlist: list of bam_file objects.
             nread: list of integers, each containing the number of on-target reads in the corresponding bam file.
             tread: list of integers, each containing the total number of reads in the corresponding bam file.
@@ -33,8 +34,8 @@ def on_target_plot(read_on_results):
             legend: list of strings containing the label to tag each bam file in the xls and png files that will be created.
         Outputs: a new bar plot will be created named outdir/reads_on_target.png.
                 This is a bar plot which indicates for each bam, the percentaje of on-target
-                reads in each chromosome. In addition, a new outdir/reads_on_target.xls file will be created containing
-                the numbers used to build the bar plot.
+                reads in each chromosome. In addition, a new outdir/reads_on_target.html
+
         ************************************************************************************************************"""
     colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
     data = []
