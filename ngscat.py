@@ -95,4 +95,17 @@ def launch_onoff_reads(bamfilenames, bedfilename, legend, outdir, executiongrant
 
 
 
+def launch_covered_positions(coveragefiles, coveragethresholds, outdir, legend, executiongranted):
+    status = multiprocessing.Value('b', False)
+    coveredbases = multiprocessing.Array('f', len(coveragefiles))
+
+
+    Pcoveredpositions = multiprocessing.Process(target=target_coverage.target_coverage_lite,
+                                                args=(coveragefiles, coveragethresholds, outdir, legend, None,
+                                                      executiongranted, status, coveredbases, config.warnbasescovered,))
+
+    print('Launching covered positions calculation...')
+    Pcoveredpositions.start()
+
+    return Pcoveredpositions, status, coveredbases
 

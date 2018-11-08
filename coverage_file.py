@@ -26,7 +26,7 @@ class coverage_file():
 
         self.data = data
         self.chromindex = chromindex
-
+        self.filename = filename
 
     def getInit(self):
         return(self.data[:,1])

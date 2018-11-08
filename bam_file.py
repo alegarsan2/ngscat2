@@ -698,7 +698,8 @@ class bam_file(pysam.Samfile):
         retoffduplicates = []
         onduplicatesresult = []
         offduplicatesresult = []
-
+        onoff_status = []
+        duplicates_status = []
         # Generating list that will form the output dictionary and Json
         for i in range(len(bamlist)):
 
@@ -733,6 +734,8 @@ class bam_file(pysam.Samfile):
             percoffduplicates.append({key: (value / (tread[i]- nread[i]) * 100.0 if (tread[i] - nread[i]) > 0 else 0)
                                       for key, value in offduplicatesresult[i].items()})
 
+            onoff_status.append(True if percontarget[i] >= warnthreshold else False)
+            duplicates_status.append(True if retonduplicates[i] > retoffduplicates[i] else False)
         #Output generation, reads_on_target.json. Status variables doesn't go inside the json (only str is allowed not booleans)
         results = []
         for i in range(len(bamlist)):
@@ -752,8 +755,8 @@ class bam_file(pysam.Samfile):
                  ('offduplicates', offduplicatesresult[i]),
                  ('perconduplicates', perconduplicates[i]),
                  ('percoffduplicates', percoffduplicates[i]),
-                 ('onoff_status', 'OK' if percontarget[i] >= warnthreshold else 'Not OK'),
-                 ('duplicates_status', 'OK' if retonduplicates[i] > retoffduplicates[i] else 'Not OK')]))
+                 ('onoff_status', 'OK' if onoff_status[i] else 'Not OK'),
+                 ('duplicates_status', 'OK' if duplicates_status[i] else 'Not OK')]))
         read_on_results['results'] = results
         read_on_results['bedfile'] = bed
         read_on_results['outdir'] = outdir
