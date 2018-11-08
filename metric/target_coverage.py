@@ -26,7 +26,7 @@ def target_coverage(bamlist,coveragefiles,coveragethreshold,outdir,legend=None, 
         covered_position.append({'>=' + str(cov) + 'x': covered_positions_per_depth[i][indx] for indx, cov in enumerate(coveragethreshold)})
         perc_covered_position.append({key: (value * 100 / ntotal_positions[i]) for key, value in covered_position[i].items()})
         perc_total_covered.append(perc_covered_position[i]['>=1x'])
-        target_coverage_status.append(True if perc_total_covered[i] >= 90 else False)
+        target_coverage_status.append(True if perc_total_covered[i] >= warnthreshold else False)
 
     for i in range(len(bamlist)):
         results.append(dict(
