@@ -32,7 +32,7 @@ def target_coverage(bamlist,coveragefiles,coveragethreshold,outdir,legend=None, 
         results.append(dict(
             [('bamfilename', bamlist[i].filename.decode('utf-8')),
              ('legend', (legend[i] if legend is not None else bamlist[i].filename.decode('utf-8').split('/')[-1])),
-             ('ntotalpositions', ntotal_positions[i]),
+             ('ntotalposition', ntotal_positions[i]),
              ('perctotalcovered', perc_total_covered[i]),
              ('coveredposition', covered_position[i]),
              ('perccoveredposition', perc_covered_position[i]),

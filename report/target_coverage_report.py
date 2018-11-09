@@ -15,20 +15,23 @@ def target_coverage_plot(target_coverage_result):
             text=['Percentage:' + str(value) + '%' for value in list(coveragefile['perccoveredposition'].values())],
             # mode='lines',
             name=coveragefile['legend'],
-            marker=dict(color=colors[i]))
+            marker=dict(color=colors[i])
+        )
 
         data.append(trace)
 
     layout_comp = go.Layout(
-        title='Reads on target',
+        title='% on positions covered',
         hovermode='closest',
         barmode='group',
         xaxis=dict(showticklabels=True, showgrid=True, title='Coverage threshold'),
-        yaxis=dict(title='% covered positions'))
+        yaxis=dict(title='% covered positions',range=[0, 100])
+    )
 
     fig = go.Figure(data=data, layout=layout_comp)
     plotly.offline.plot(fig, filename=target_coverage_result['outdir'] + 'covered_positions.html',
-                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'])
+                        )
 
 
 def target_coverage_xls(target_coverage_result):
@@ -37,6 +40,7 @@ def target_coverage_xls(target_coverage_result):
 
     # A sheet is created in the xls for each coveragefile file
     for i, coveragefile in enumerate(target_coverage_result['results']):
+        ws = wb.add_sheet(coveragefile['legend'])
 
         # Create header font
         header_style = xlwt.easyxf('font: bold on')
@@ -44,27 +48,24 @@ def target_coverage_xls(target_coverage_result):
         ws.write(0, 0, 'Input bamfile: ', header_style)
         ws.write(0, 1,coveragefile['bamfilename'])
 
-        ws.write(1, 0, 'Input bedfile:', header_style)
-        ws.write(1, 1, read_on_results['bedfile'])
 
-        ws.write(2, 0, 'Enrichment:', header_style)
-        ws.write(2, 1,coveragefile['enrichment'])
+        # TODO Añadir a target_coverage argumento bed para obtener bedfilename
+        # ws.write(1, 0, 'Input bedfile:', header_style)
+        #ws.write(1, 1, read_on_results['bedfile'])
 
-        ws.write(4, 1, 'Reads on target', header_style)
-        ws.write(4, 2, 'Reads off target', header_style)
-        ws.write(4, 3, '% reads on target', header_style)
-        ws.write(4, 4, '% reads off target', header_style)
-        ws.write(5, 0, 'Total', header_style)
-        ws.write(5, 1,coveragefile['onread'])
-        ws.write(5, 2,coveragefile['totalread'])
-        ws.write(5, 3,coveragefile['percontotal'])
-        ws.write(5, 4, 100.0 -coveragefile['percontotal'])
+        ws.write(2, 0, 'Outdir:', header_style)
+        ws.write(2, 1, target_coverage_result['outdir'])
 
-        for j, chr in enumerate(listcoveragefile['totalperchr'].keys())):
-            ws.write(j + 6, 0, chr, header_style)
-            ws.write(j + 6, 1,coveragefile['onperchr'][chr])
-            ws.write(j + 6, 2,coveragefile['totalperchr'][chr] -coveragefile['onperchr'][chr])
-            ws.write(j + 6, 3,coveragefile['perconperchr'][chr])
-            ws.write(j + 6, 4, 100.0 -coveragefile['perconperchr'][chr])
+        ws.write(3, 0, 'Table', header_style)
 
-    wb.save(read_on_results['outdir'] + '/reads_on_target.xls')
+        ws.write(5, 0, 'Number of on positions covered', header_style)
+        ws.write(6, 0, '% of on positions covered', header_style)
+        ws.write(4, 1 + len(coveragefile['coveredposition']), 'Total',header_style)
+        ws.write(5, 1 + len(coveragefile['coveredposition']), coveragefile['ntotalposition'])
+
+        for j, depth in enumerate(coveragefile['coveredposition']):
+            ws.write(4, 1+j, depth, header_style)
+            ws.write(5, 1+j, coveragefile['coveredposition'][depth])
+            ws.write(6, 1+j, coveragefile['perccoveredposition'][depth])
+
+    wb.save(target_coverage_result['outdir'] + '/coverage_summary.xls')

@@ -191,11 +191,11 @@ def duplicates_xls(read_on_results):
     for i, bam in enumerate(read_on_results['results']):
         ws = wb.add_sheet(bam['legend'])
         # Extract dictionary values
-        keys = []
-        yon = []
-        yoff = []
-        ypercon = []
-        ypercoff = []
+        # keys = []
+        # yon = []
+        # yoff = []
+        # ypercon = []
+        # ypercoff = []
 
         onkeys = list(bam['perconduplicates'].keys())
 
