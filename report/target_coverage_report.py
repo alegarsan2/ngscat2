@@ -69,3 +69,32 @@ def target_coverage_xls(target_coverage_result):
             ws.write(6, 1+j, coveragefile['perccoveredposition'][depth])
 
     wb.save(target_coverage_result['outdir'] + '/coverage_summary.xls')
+
+def target_distribution_histo(target_distribution_result):
+    colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
+    data = []
+    for i, coveragefile in enumerate(target_distribution_result['results']):
+        trace = go.Bar(
+            x=coveragefile['histdata']['values'],
+            y=coveragefile['histdata']['binedges'],
+            hoverinfo='text',
+            hoverlabel=dict(font=dict(color=['black'])),
+            #text=['Percentage:' + str(value) + '%' for value in list(coveragefile['perccoveredposition'].values())],
+            # mode='lines',
+            name=coveragefile['legend'],
+            marker=dict(color=colors[i])
+        )
+
+        data.append(trace)
+
+    layout_comp = go.Layout(
+        title='% on positions covered',
+        hovermode='closest',
+        barmode='group',
+        xaxis=dict(showticklabels=True, showgrid=True, title='Coverage threshold'),
+        #yaxis=dict(title='% covered positions', range=[0, 100])
+    )
+
+    fig = go.Figure(data=data, layout=layout_comp)
+    plotly.offline.plot(fig, filename=target_distribution_result['outdir'] + 'target_hist.html',
+                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))

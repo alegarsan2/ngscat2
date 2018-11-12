@@ -9,7 +9,7 @@ import plotly
 
 def on_target_plot(read_on_results):
     """*****************************************************************************************************************
-        Task:ALEGARSAN this method is dependant on "reads_on_target".
+        Task:ALEGARSAN this method is dependant on bam."reads_on_target".
             Generates a graph interactive plot
         Inputs:
             read_on_results: Dict, with same data as json generated.
@@ -117,11 +117,10 @@ def on_target_xls(read_on_results):
 def duplicates_plot(read_on_results):
 
     for i, bam in enumerate(read_on_results['results']):
-
         # Extract dictionary values
-        x = []
-        yon= []
-        yoff= []
+        # x = []
+        # yon= []
+        # yoff= []
 
         onkeys= list(bam['perconduplicates'].keys())
 
@@ -164,27 +163,23 @@ def duplicates_plot(read_on_results):
             #marker=dict(color=colors[i]))
         data.append(traceoff)
 
+        layout_comp = go.Layout(
+            title='Duplicates',
+            hovermode='closest',
+            barmode='group',
+            xaxis=dict(showticklabels=True, showgrid=True, title='# of duplicates'),
+            yaxis=dict(title='% of reads'))
 
-
-    layout_comp = go.Layout(
-        title='Duplicates',
-        hovermode='closest',
-        barmode='group',
-        xaxis=dict(showticklabels=True, showgrid=True, title='# of duplicates'),
-        yaxis=dict(title='% of reads'))
-
-    fig = go.Figure(data=data, layout=layout_comp)
-    plotly.offline.plot(fig, filename=read_on_results['outdir'] + 'duplicates_' + bam['legend'] + '.html',
-                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+        fig = go.Figure(data=data, layout=layout_comp)
+        plotly.offline.plot(fig, filename=read_on_results['outdir'] + 'duplicates_' + bam['legend'] + '.html',
+                            auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
 
 
 
 def duplicates_xls(read_on_results):
     # Initialize the workbook and sheet
-
     maxduplicates = read_on_results['maxduplicates']
-
     wb = xlwt.Workbook()
 
     # A sheet is created in the xls for each bam file
@@ -224,8 +219,6 @@ def duplicates_xls(read_on_results):
         ypercoff = percoffvalues[0:maxduplicates - 1]
         ypercoff.append(sum(percoffvalues[maxduplicates-1:]))
 
-
-
         # Create header font
         header_style = xlwt.easyxf('font: bold on')
 
@@ -240,7 +233,7 @@ def duplicates_xls(read_on_results):
         ws.write(6, 0, '# total', header_style)
         ws.write(7, 0, '% on', header_style)
         ws.write(8, 0, '% off', header_style)
-        j= []
+
         for j in range(len(keys)):
             ws.write(3, j + 1, keys[j], header_style)
             ws.write(4, j + 1, yon[j])
