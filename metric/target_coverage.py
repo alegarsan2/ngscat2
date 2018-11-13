@@ -62,10 +62,22 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
     zerocov = []
 
     for i, coveragefile in enumerate(coveragefiles):
-        value = []
-        bin_edges = []
-        value, bin_edges = np.histogram(coveragefile.getCov(), bins= bins)
-        histlist.append(dict([('values',value.tolist()),('binedges',bin_edges.tolist())]))
+        #Deleta 0 coverage base positions
+        covnozero = coveragefile.getCov()[np.nonzero(coveragefile.getCov())]
+        number_read, bin_edges = np.histogram(covnozero,
+                                              bins= bins)
+        bin_edges= bin_edges.tolist()
+        width =  []
+        xaxis = []
+        for i in range(len(bin_edges)-1):
+            xaxis.append((bin_edges[i]+ bin_edges[i +1])/2)
+            width.append(bin_edges[1]- bin_edges[0])
+
+        histlist.append(dict([('numberread',number_read.tolist()),
+                              ('binedges',bin_edges),
+                              ('coveragepos',xaxis),
+                              ('width',width)]))
+
         percentile.append(dict(
             [('Q1', np.percentile(coveragefile.getCov(), 25)),
             ('Q2', np.percentile(coveragefile.getCov(), 50)),
@@ -75,7 +87,7 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
         maximum.append(np.max(coveragefile.getCov()))
         minimum.append(np.min(coveragefile.getCov()))
         mean.append(coveragefile.getCov().mean())
-        zerocov.append(len(coveragefile.getCov() - len(coveragefile.getCov().nonzero())))
+        zerocov.append(len(coveragefile.getCov() - len(covnozero)))
 
     for i in range(len(bamlist)):
         results.append(dict(
