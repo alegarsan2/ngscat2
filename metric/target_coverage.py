@@ -88,7 +88,7 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
         minimum.append(np.min(coveragefile.getCov()))
         mean.append(coveragefile.getCov().mean())
         zerocov.append(len(coveragefile.getCov() - len(covnozero)))
-
+        #TODO ver que parametros metemos en el JSON
     for i in range(len(bamlist)):
         results.append(dict(
             [('bamfilename', bamlist[i].filename.decode('utf-8')),
@@ -111,4 +111,4 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
     with open(outdir + '/target_distribution_result.json', 'w') as outfile:
         json.dump(target_distribution_result, outfile)
 
-    return target_distribution_result
+    return target_distribution_result, covnozero
