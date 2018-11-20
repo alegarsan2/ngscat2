@@ -10,6 +10,7 @@ import sys
 import json
 import pysam
 #import sets
+import coverage_file
 import subprocess
 try:
     import numpy
@@ -150,7 +151,307 @@ class bam_file(pysam.Samfile):
 
         return bam_file(sortedBAMfilename)
 
-    def myCoverageBed(self, target, numberReads=None, writeToFile=None, executiongranted=None, tmpdir=None,
+    # def myCoverageBed(self, target, numberReads=None, writeToFile=None, executiongranted=None, tmpdir=None,
+    #                   bedGraphFile=None):
+    #     """*************************************************************************************************************
+    #             JPFLORIDO
+    #             Task:  Custom method equivalent to bedtool's coverage bed
+    #             Inputs: BAM file, target file (BED file), number of desired reads to be taken into account from the BAM
+    #             file (default all) and option to write results to file the same way as bedtool does
+    #             Outputs:
+    #                 positionArray_intersect: a vector of bp coordinates in which coverage changes according to the
+    #                 intersection of BAM file and target file
+    #                 coverageArray_intersect: coverage (number of reads) for a given bp position
+    #                 chromosomeCoordinates: a dictionary in which each entry is related to a chromosome and the content
+    #                                        indicates the starting and ending position in positionArray_intersect and
+    #                                         coverageArray_intersect arrays
+    #                            finalBed: target file with overlapping exons removed and sorted (object)
+    #             Other issues: it is intented to return also positions off target. However, coverage around exons changes
+    #                          a lot, so there is an important increasing
+    #             # in the memory used
+    #             *****************************************************************************************************"""
+    #
+    #     global TMP
+    #
+    #     if (executiongranted != None):
+    #         executiongranted.acquire()
+    #
+    #     if (tmpdir != None):
+    #         TMP = tmpdir
+    #
+    #     pid = str(os.getpid())
+    #
+    #     # # Check whether BAM file is sorted
+    #     # command = 'samtools view -H ' + self.filename + ' | grep SO:'
+    #     # fd = os.popen(command)
+    #     # outputCommand = fd.read()
+    #     # # BAM not sorted -> Sort and indexing BAM
+    #     # if ((fd.close() != None) or ('coordinate' not in outputCommand.split('SO:')[-1])):
+    #     #     #			print 'ERROR: bam file must be sorted.'
+    #     #     #			print '	Exiting.'
+    #     #     #			sys.exit(1)
+    #     #     sortedBam = self.sort_bam()
+    #     # else:
+    #     #     sortedBam = self
+    #     #
+    #     if (writeToFile != None):  # Results written to output file
+    #         fdw = open(writeToFile, 'w')
+    #     sortedBam = self
+    #     positionArray_intersect = []
+    #     coverageArray_intersect = []
+    #     chromosomeCoordinates = {}  # Dictionary that controls, for a given chromosome,
+    #     # its starting position and end position in the previous intersection arrays
+    #
+    #
+    #     # Load target file, remove overlapping regions, sort it and load it
+    #     bed = bed_file.bed_file(target)
+    #     sortedBed = bed.my_sort_bed(tmpdir=TMP)
+    #     # Base 1!!! # This generates a BED file in base 1 (Non-standard BED)
+    #     nonOverlappingBed = sortedBed.non_overlapping_exons(1,tmpdir=TMP)
+    #     finalBed = nonOverlappingBed.my_sort_bed(tmpdir=TMP)  # BED file in base 1 (Non-standard BED)
+    #     finalBed.load_custom(-1)  # Load chromosome and positions in base 1....(finalBed is in base 1->Non-standard BED)
+    #
+    #     # Move along all chromosomes
+    #     for currentChromosome in finalBed.chrs.keys():
+    #         # Get all reads of current chromosome it there are reads in such chromosome
+    #
+    #         positionArray = []  # Stores bp positions along the current chromosome
+    #         coverageArray = []  # Stores coverage values for a related position in chromosome (positionArray)
+    #
+    #         if (currentChromosome in sortedBam.references):
+    #             # There might me information about the chromosome in the BAM header but no reads
+    #             if (sortedBam.count(str(currentChromosome)) > 0):
+    #                 allReads = sortedBam.fetch(str(currentChromosome))
+    #
+    #                 initPositions = []  # Structure that stores initial positions of each read
+    #                 endPositions = []  # Structure that stores end positions of each read
+    #                 for currentRead in allReads:
+    #                     initPositions.append(int(currentRead.pos) + 1)#Fetch is 0-base indexing,working on 1-base indexing
+    #                     endPositions.append(int(currentRead.aend))
+    #
+    #                 # Select a given number of reads according to numReadsDesired
+    #                 if (numberReads is None):
+    #                     numReadsDesired = sortedBam.nreads()
+    #                 else:
+    #                     numReadsDesired = numberReads
+    #
+    #                 numpy.random.seed(1)
+    #                 selected = numpy.random.uniform(
+    #                     size=len(initPositions)) <= (numReadsDesired * 1.0 / sortedBam.nreads())
+    #
+    #                 # Convert to numpy arrays
+    #                 initPositions = numpy.array(initPositions, dtype=numpy.uint32)
+    #                 endPositions = numpy.array(endPositions, dtype=numpy.uint32)
+    #
+    #                 selectedPositions_init = initPositions[selected]
+    #                 selectedPositions_end = endPositions[selected]
+    #                 selectedPositions_end += 1  # At the end of the position, the coverage counts. Sum 1 to say that at this position the coverage decreases
+    #
+    #                 # Sort each vector independtly
+    #                 selectedPositions_init.sort()
+    #                 selectedPositions_end.sort()
+    #
+    #                 totalPositions_init = len(selectedPositions_init)
+    #                 totalPositions_end = len(selectedPositions_end)
+    #
+    #
+    #                 # First iteration is done manually
+    #                 positionArray.append(selectedPositions_init[0])  # Init position of the first read
+    #                 coverageArray.append(1)  # A single read (coverage=1)
+    #
+    #                 indexInit = 1  # Controls index along selectedPositions_init (fist position in this array has been read)
+    #                 indexEnd = 0  # Controls index along selectedPositions_end
+    #
+    #                 while indexEnd < totalPositions_end:  # While there are reads to be visited
+    #                     if (indexInit < totalPositions_init):  # There are still reads that have to be visited
+    #                         if (selectedPositions_init[indexInit] < selectedPositions_end[indexEnd]):  # If current position in init is smaller than current position in end
+    #                             position = selectedPositions_init[indexInit]
+    #                             indexInit += 1
+    #                             partialSum = 1
+    #                         elif (selectedPositions_init[indexInit] > selectedPositions_end[
+    #                             indexEnd]):  # If current position in end is greater than current position in init
+    #                             position = selectedPositions_end[indexEnd]
+    #                             indexEnd += 1
+    #                             partialSum = -1
+    #                         else:  # If current position in init is equal to the position in end
+    #                             position = selectedPositions_end[indexEnd]
+    #                             indexInit += 1
+    #                             indexEnd += 1
+    #                             partialSum = 0
+    #                     else:  # All starting positions for all reads have been visited
+    #                         position = selectedPositions_end[indexEnd]
+    #                         indexEnd += 1
+    #                         partialSum = -1
+    #
+    #                     # Check whether position is already in the vector of positions
+    #                     if (position == positionArray[-1]):  # More than a read starts or ends at the same time
+    #                         coverageArray[-1] += partialSum
+    #                     elif (partialSum != 0):  # If partialSum==0, then a read ends and a new read start -> do not update information
+    #                         positionArray.append(position)
+    #                         coverageArray.append(coverageArray[-1] + partialSum)
+    #
+    #                     pbarIter = indexInit + indexEnd
+    #                 # pbar.update(pbarIter)
+    #                 # pbar.finish()
+    #
+    #                 # Transform positionArray and coverageArray to numpy arrays to save memory
+    #                 positionArray = numpy.array(positionArray, dtype=numpy.uint32)
+    #                 coverageArray = numpy.array(coverageArray, dtype=numpy.uint16)
+    #
+    #                 numPositions = len(positionArray)
+    #
+    #                 # Create a bedgraph with coverage per position for all reads contained in the current chromosome
+    #                 if (bedGraphFile != None):
+    #                     extension = '.'
+    #                     onlyName = os.path.basename(bedGraphFile)
+    #                     components = onlyName.split(extension)
+    #                     prefixFile = extension.join(components[:-1])
+    #                     newFileName = prefixFile + '.' + str(currentChromosome) + '.' + components[-1]
+    #                     if (len(os.path.dirname(bedGraphFile)) > 0):
+    #                         newFileNameFULL = os.path.dirname(bedGraphFile) + '/' + newFileName
+    #                     else:
+    #                         newFileNameFULL = newFileName
+    #
+    #                     fdw_bedGraph = file(newFileNameFULL, 'w')
+    #                     fdw_bedGraph.write('track type=bedGraph name=coverage_chr_' + str(currentChromosome) + str(self.filename)
+    #                                        + '" description="coverage per position for ' + str(self.filename) + ' chromosome ' +
+    #                                        str(currentChromosome) + '"\n')
+    #
+    #                     positionArray_bedGraph = positionArray - 1  # BED GRAPH displays in base 1, although data must use 0-base indexing (http://genome.ucsc.edu/FAQ/FAQtracks#tracks1). See format of bedgraph http://genome.ucsc.edu/goldenPath/help/bedgraph.html
+    #                     coverageArray_bedGraph = coverageArray
+    #                     for index in range(0, len(positionArray_bedGraph) - 1):
+    #                         if (coverageArray_bedGraph[index] != 0):
+    #                             fdw_bedGraph.write(str(currentChromosome) + ' ' + str(positionArray_bedGraph[index]) +' ' +
+    #                                 str(positionArray_bedGraph[index + 1]) + ' ' + str(coverageArray_bedGraph[index]) +'\n')
+    #
+    #                     fdw_bedGraph.close()
+    #             else:
+    #                 numPositions = 0
+    #
+    #         else:  # There are no reads for the current chromosome
+    #             numPositions = 0
+    #
+    #
+    #         indexCoverage = 0
+    #         nextPositionChange = 0
+    #         previousIndexCoverage = indexCoverage
+    #         firstPosition = len(positionArray_intersect)  # First position in the intersection vectors (positionArray_intersect and coverageArray_intersect)
+    #
+    #         for currentExon in finalBed.chrs[str(currentChromosome)]:
+    #             exon_init = int(currentExon[0])
+    #             exon_end = int(currentExon[1])
+    #
+    #             # Search for the first position that matches with the beginning of currentExon
+    #             thereAreReads = False
+    #             # firstIndexCoverage=indexCoverage
+    #             readsAfterExonBeg = False  # Whether there are reads after the starting position of the exon ##NEW
+    #
+    #             # Check if change in coverage from the previous iteration is before exon_init. If not, move one position back so that previous coverage value is recovered
+    #             if (indexCoverage > 0 and indexCoverage < numPositions and positionArray[nextPositionChange] > exon_init):
+    #                 indexCoverage = indexCoverage - 1
+    #
+    #             if (indexCoverage < numPositions and positionArray[indexCoverage] > exon_init and positionArray[
+    #                 indexCoverage] <= exon_end):  # There are reads in the exon, but the first read starts after the beginning of the exon
+    #                 startPosition = indexCoverage
+    #                 readsAfterExonBeg = True
+    #             else:  # Reads start before the beginning of the exon
+    #                 while (indexCoverage < numPositions and positionArray[indexCoverage] <= exon_init):
+    #                     indexCoverage += 1
+    #                 startPosition = indexCoverage - 1
+    #
+    #
+    #
+    #             if (indexCoverage != previousIndexCoverage):
+    #                 thereAreReads = True
+    #             # Search for the first position that matches with the end of currentExon
+    #             while (indexCoverage < numPositions and positionArray[indexCoverage] <= exon_end):
+    #                 indexCoverage += 1
+    #             endPosition = indexCoverage - 1
+    #
+    #             nextPositionChange = indexCoverage  # positionArray[indexCoverage] contains next position after exon_end in which coverage changes
+    #
+    #             if (endPosition != startPosition or thereAreReads):  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
+    #                 numElements = endPosition - startPosition + 1  # Num of coverage/bases values to be interseted
+    #                 if (writeToFile is None):
+    #                     if (readsAfterExonBeg):
+    #                         positionArray_intersect.extend([exon_init])
+    #                         coverageArray_intersect.extend([0])
+    #
+    #                     positionArray_intersect.extend(positionArray[startPosition:(endPosition + 1)])
+    #                     coverageArray_intersect.extend(coverageArray[startPosition:(endPosition + 1)])
+    #
+    #                     # It may happen that positionArray[startPosition] and positionArray[endPosition+1] are not equal to the beginning and end of the exon respectively
+    #                     # Thus, it is forced to modify positionArray_intersect[indexIntersect] and positionArray_intersect[indexIntersect_end-1] to the beggining and end of the exon respectively
+    #                     if (not readsAfterExonBeg):
+    #                         positionArray_intersect[-numElements] = exon_init
+    #                 # positionArray_intersect[-1]=exon_end # No es valido si la posicion final del exon tiene el mismo coverage que otra posicion anterior
+    #                 else:  # Write to file base per base current exon
+    #                     keys = range(exon_init, exon_end + 1)
+    #                     dicExon = dict(zip(keys, [-1] * len(keys)))
+    #
+    #                     currentPositionArray = positionArray[startPosition:(endPosition + 1)]
+    #                     if (not readsAfterExonBeg):
+    #                         currentPositionArray[0] = exon_init
+    #                     else:  # If reads after after exon_init, place a zero coverage to the beginning of the exon
+    #                         dicExon[exon_init] = 0
+    #
+    #                     currentCoverageArray = coverageArray[startPosition:(endPosition + 1)]
+    #                     dicExon.update(
+    #                         zip(currentPositionArray, currentCoverageArray))  # Fill positions where coverage changes
+    #
+    #                     previousKey = sorted(dicExon.keys())[0]
+    #
+    #                     for currentKey in sorted(dicExon.keys()):
+    #                         if (dicExon[currentKey] == -1):  # Take into account the coverage of the last position (key) that has coverage
+    #                             # dicExon[currentKey]=dicExon[previousKey]
+    #                             fdw.write(
+    #                                 str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
+    #                                     dicExon[previousKey]) + '\n')
+    #                         else:
+    #                             fdw.write(
+    #                                 str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
+    #                                     dicExon[currentKey]) + '\n')
+    #                             previousKey = currentKey
+    #
+    #                 previousIndexCoverage = indexCoverage
+    #             else:  # A exon is not covered -> startPosition moves until the end but endPosition could not move more. However, we want to point that, although there are no reads for
+    #                 # the current exon, the initial position of the exon and its coverage (zero) are stored
+    #                 if (writeToFile is None):
+    #                     positionArray_intersect.append(exon_init)  # Initial position of exon
+    #                     coverageArray_intersect.append(0)  # Zero coverage
+    #                 else:
+    #                     keys = range(exon_init, exon_end + 1)
+    #                     dicExon = dict(zip(keys, [0] * len(keys)))
+    #
+    #                     for currentKey in sorted(dicExon.keys()):
+    #                         fdw.write(str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
+    #                             dicExon[currentKey]) + '\n')
+    #
+    #                 indexCoverage = previousIndexCoverage  # Move backwards in positionArray to search reads for the next exon (all exons have not visited yet)
+    #
+    #         # Get the positions in the intersection vector for the current chromosome
+    #         chromosomeCoordinates[currentChromosome] = (firstPosition, len(positionArray_intersect) - 1)
+    #
+    #
+    #         del positionArray
+    #         gc.collect()
+    #
+    #         del coverageArray
+    #         gc.collect()
+    #
+    #     positionArray_intersect = numpy.array(positionArray_intersect, dtype=numpy.uint32)
+    #     coverageArray_intersect = numpy.array(coverageArray_intersect, dtype=numpy.uint16)
+    #
+    #     if (writeToFile != None):
+    #         fdw.close()
+    #
+    #     if (executiongranted != None):
+    #         executiongranted.release()
+    #
+    #     return [positionArray_intersect, coverageArray_intersect, chromosomeCoordinates, finalBed]
+
+
+    def myCoverageBed(self, target, numberReads=None, tmpdir=None,
                       bedGraphFile=None):
         """*************************************************************************************************************
                 JPFLORIDO
@@ -172,8 +473,6 @@ class bam_file(pysam.Samfile):
 
         global TMP
 
-        if (executiongranted != None):
-            executiongranted.acquire()
 
         if (tmpdir != None):
             TMP = tmpdir
@@ -193,8 +492,8 @@ class bam_file(pysam.Samfile):
         # else:
         #     sortedBam = self
         #
-        if (writeToFile != None):  # Results written to output file
-            fdw = open(writeToFile, 'w')
+        # if (writeToFile != None):  # Results written to output file
+        #     fdw = open(writeToFile, 'w')
         sortedBam = self
         positionArray_intersect = []
         coverageArray_intersect = []
@@ -210,10 +509,22 @@ class bam_file(pysam.Samfile):
         finalBed = nonOverlappingBed.my_sort_bed(tmpdir=TMP)  # BED file in base 1 (Non-standard BED)
         finalBed.load_custom(-1)  # Load chromosome and positions in base 1....(finalBed is in base 1->Non-standard BED)
 
+        # Instanciate class
+        coveragefile = coverage_file.Coveragefile(self.filename)
+
+
+
+
+
+        lchrom = []
+        lexon = []
+        finexon = []
+        fincov = []
+
         # Move along all chromosomes
         for currentChromosome in finalBed.chrs.keys():
-            # Get all reads of current chromosome it there are reads in such chromosome
 
+            # Get all reads of current chromosome it there are reads in such chromosome
             positionArray = []  # Stores bp positions along the current chromosome
             coverageArray = []  # Stores coverage values for a related position in chromosome (positionArray)
 
@@ -254,6 +565,9 @@ class bam_file(pysam.Samfile):
                     totalPositions_end = len(selectedPositions_end)
 
 
+
+                    xcov = []
+                    lexon = []
                     # First iteration is done manually
                     positionArray.append(selectedPositions_init[0])  # Init position of the first read
                     coverageArray.append(1)  # A single read (coverage=1)
@@ -311,7 +625,7 @@ class bam_file(pysam.Samfile):
                         else:
                             newFileNameFULL = newFileName
 
-                        fdw_bedGraph = file(newFileNameFULL, 'w')
+                        fdw_bedGraph = open(newFileNameFULL, 'w')
                         fdw_bedGraph.write('track type=bedGraph name=coverage_chr_' + str(currentChromosome) + str(self.filename)
                                            + '" description="coverage per position for ' + str(self.filename) + ' chromosome ' +
                                            str(currentChromosome) + '"\n')
@@ -321,7 +635,7 @@ class bam_file(pysam.Samfile):
                         for index in range(0, len(positionArray_bedGraph) - 1):
                             if (coverageArray_bedGraph[index] != 0):
                                 fdw_bedGraph.write(str(currentChromosome) + ' ' + str(positionArray_bedGraph[index]) +' ' +
-                                    str(positionArray_bedGraph[index + 1]) + ' ' + str(coverageArray_bedGraph[index]) +'\n')
+                                                   str(positionArray_bedGraph[index + 1]) + ' ' + str(coverageArray_bedGraph[index]) +'\n')
 
                         fdw_bedGraph.close()
                 else:
@@ -330,6 +644,10 @@ class bam_file(pysam.Samfile):
             else:  # There are no reads for the current chromosome
                 numPositions = 0
 
+            # COVERAGE FILE GENERATION, takes 2 list below.
+
+            # Generate chromosome object that will contain regions objects
+            chromosome = coverage_file.Chromosome(currentChromosome)
 
             indexCoverage = 0
             nextPositionChange = 0
@@ -337,8 +655,15 @@ class bam_file(pysam.Samfile):
             firstPosition = len(positionArray_intersect)  # First position in the intersection vectors (positionArray_intersect and coverageArray_intersect)
 
             for currentExon in finalBed.chrs[str(currentChromosome)]:
+
+                region = coverage_file.Region()
+                region.start = int(currentExon[0])
+                region.end = int(currentExon[1])
+                covlist = []
                 exon_init = int(currentExon[0])
                 exon_end = int(currentExon[1])
+                # lexon.append([exon_init, exon_end])
+
 
                 # Search for the first position that matches with the beginning of currentExon
                 thereAreReads = False
@@ -371,65 +696,86 @@ class bam_file(pysam.Samfile):
 
                 if (endPosition != startPosition or thereAreReads):  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
                     numElements = endPosition - startPosition + 1  # Num of coverage/bases values to be interseted
-                    if (writeToFile is None):
-                        if (readsAfterExonBeg):
-                            positionArray_intersect.extend([exon_init])
-                            coverageArray_intersect.extend([0])
-
-                        positionArray_intersect.extend(positionArray[startPosition:(endPosition + 1)])
-                        coverageArray_intersect.extend(coverageArray[startPosition:(endPosition + 1)])
-
-                        # It may happen that positionArray[startPosition] and positionArray[endPosition+1] are not equal to the beginning and end of the exon respectively
-                        # Thus, it is forced to modify positionArray_intersect[indexIntersect] and positionArray_intersect[indexIntersect_end-1] to the beggining and end of the exon respectively
-                        if (not readsAfterExonBeg):
-                            positionArray_intersect[-numElements] = exon_init
+                    # if (writeToFile is None):
+                    #     if (readsAfterExonBeg):
+                    #         positionArray_intersect.extend([exon_init])
+                    #         coverageArray_intersect.extend([0])
+                    #
+                    #     positionArray_intersect.extend(positionArray[startPosition:(endPosition + 1)])
+                    #     coverageArray_intersect.extend(coverageArray[startPosition:(endPosition + 1)])
+                    #
+                    #     # It may happen that positionArray[startPosition] and positionArray[endPosition+1] are not equal to the beginning and end of the exon respectively
+                    #     # Thus, it is forced to modify positionArray_intersect[indexIntersect] and positionArray_intersect[indexIntersect_end-1] to the beggining and end of the exon respectively
+                    #     if (not readsAfterExonBeg):
+                    #         positionArray_intersect[-numElements] = exon_init
                     # positionArray_intersect[-1]=exon_end # No es valido si la posicion final del exon tiene el mismo coverage que otra posicion anterior
-                    else:  # Write to file base per base current exon
-                        keys = range(exon_init, exon_end + 1)
-                        dicExon = dict(zip(keys, [-1] * len(keys)))
+                    # Write to file base per base current exon
+                    keys = range(exon_init, exon_end + 1)
+                    dicExon = dict(zip(keys, [-1] * len(keys)))
 
-                        currentPositionArray = positionArray[startPosition:(endPosition + 1)]
-                        if (not readsAfterExonBeg):
-                            currentPositionArray[0] = exon_init
-                        else:  # If reads after after exon_init, place a zero coverage to the beginning of the exon
-                            dicExon[exon_init] = 0
+                    currentPositionArray = positionArray[startPosition:(endPosition + 1)]
+                    if (not readsAfterExonBeg):
+                        currentPositionArray[0] = exon_init
+                    else:  # If reads after after exon_init, place a zero coverage to the beginning of the exon
+                        dicExon[exon_init] = 0
 
-                        currentCoverageArray = coverageArray[startPosition:(endPosition + 1)]
-                        dicExon.update(
-                            zip(currentPositionArray, currentCoverageArray))  # Fill positions where coverage changes
+                    currentCoverageArray = coverageArray[startPosition:(endPosition + 1)]
+                    dicExon.update(
+                        zip(currentPositionArray, currentCoverageArray))  # Fill positions where coverage changes
 
-                        previousKey = sorted(dicExon.keys())[0]
+                    previousKey = sorted(dicExon.keys())[0]
 
-                        for currentKey in sorted(dicExon.keys()):
-                            if (dicExon[currentKey] == -1):  # Take into account the coverage of the last position (key) that has coverage
-                                # dicExon[currentKey]=dicExon[previousKey]
-                                fdw.write(
-                                    str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
-                                        dicExon[previousKey]) + '\n')
-                            else:
-                                fdw.write(
-                                    str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
-                                        dicExon[currentKey]) + '\n')
-                                previousKey = currentKey
+                    for currentKey in sorted(dicExon.keys()):
+                        if (dicExon[currentKey] == -1):  # Take into account the coverage of the last position (key) that has coverage
 
+                            # dicExon[currentKey]=dicExon[previousKey]
+                            covlist.append(dicExon[previousKey])
+
+
+                            # fdw.write(
+                            #     str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
+                            #         dicExon[previousKey]) + '\n')
+
+                        else:
+                            covlist.append(dicExon[currentKey])
+
+                            # fdw.write(
+                            #     str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
+                            #         dicExon[currentKey]) + '\n')
+                            previousKey = currentKey
+
+                    # xcov.append(covlist)
+                    region.coverages = covlist
+                    #covlist = []
                     previousIndexCoverage = indexCoverage
+
                 else:  # A exon is not covered -> startPosition moves until the end but endPosition could not move more. However, we want to point that, although there are no reads for
                     # the current exon, the initial position of the exon and its coverage (zero) are stored
-                    if (writeToFile is None):
-                        positionArray_intersect.append(exon_init)  # Initial position of exon
-                        coverageArray_intersect.append(0)  # Zero coverage
-                    else:
-                        keys = range(exon_init, exon_end + 1)
-                        dicExon = dict(zip(keys, [0] * len(keys)))
 
-                        for currentKey in sorted(dicExon.keys()):
-                            fdw.write(str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
-                                dicExon[currentKey]) + '\n')
+                    keys = range(exon_init, exon_end + 1)
+                    dicExon = dict(zip(keys, [0] * len(keys)))
 
-                    indexCoverage = previousIndexCoverage  # Move backwards in positionArray to search reads for the next exon (all exons have not visited yet)
+                    for currentKey in sorted(dicExon.keys()):
+                        covlist.append(dicExon[currentKey])
 
-            # Get the positions in the intersection vector for the current chromosome
-            chromosomeCoordinates[currentChromosome] = (firstPosition, len(positionArray_intersect) - 1)
+
+                    region.coverages = covlist
+
+
+                    # Move backwards in positionArray to search reads for the next exon (all exons have not visited yet)
+                    indexCoverage = previousIndexCoverage
+                #xcov.append(covlist)
+                chromosome.regions.append(region)
+
+
+
+            coveragefile.chromosomes.append(chromosome)
+
+            # fincov.append(xcov)
+            # lchrom.append(currentChromosome)
+            # finexon.append(lexon)
+            # # Get the positions in the intersection vector for the current chromosome
+            #chromosomeCoordinates[currentChromosome] = (firstPosition, len(positionArray_intersect) - 1)
 
 
             del positionArray
@@ -441,13 +787,12 @@ class bam_file(pysam.Samfile):
         positionArray_intersect = numpy.array(positionArray_intersect, dtype=numpy.uint32)
         coverageArray_intersect = numpy.array(coverageArray_intersect, dtype=numpy.uint16)
 
-        if (writeToFile != None):
-            fdw.close()
+        # if (writeToFile != None):
+        #     fdw.close()
 
-        if (executiongranted != None):
-            executiongranted.release()
 
-        return [positionArray_intersect, coverageArray_intersect, chromosomeCoordinates, finalBed]
+
+        return [coveragefile, finalBed]
 
     def myReadsOnTarget(self, target):
         """*******************************************************************************************************************************************
