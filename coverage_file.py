@@ -5,7 +5,12 @@ class Region():
     def __init__(self):
         self.start = None
         self.end = None
-        self.coverages = []
+        self.covStartIndex = None
+        self.covEndIndex = None
+
+    def iterateOverCoverages(self, processCoverages):
+        processCoverages(self, coverage)
+
 
 class Chromosome():
     def __init__(self, name):
@@ -16,57 +21,27 @@ class Coveragefile():
     def __init__(self,name):
         self.name = name
         self.chromosomes = []
-
-    def iterateOverRegions(self,processRegions):
+        self.coverages = None
+    def iterateOverRegions(self, processRegions):
         for chromosome in self.chromosomes:
             for region in chromosome.regions:
                 processRegions(chromosome, region)
 
-    def iterateOverCoverages(self, processCoverages):
-        for chromosome in self.chromosomes:
-            for region in chromosome.regions:
-                for coverages in region.coverages:
-                    processCoverages(chromosome, region, coverages)
+    # def iterateOverCoverages(self,processCoverages):
+    #     for chromosome in self.chromosomes:
+    #         for region in chromosome.regions:
+    #             for coverage in region.coverages:
+    #                 processCoverages(chromosome,region,coverage)
 
-# import numpy as np
-#
-# class coverage_file():
-#
-#     def __init__(self, filename):
-#
-#         lineCount = 0
-#         with open(filename, "r") as f:
-#             for line in f.readlines():
-#                 lineCount = lineCount + 1
-#
-#         chromindex = []
-#         data = np.empty(shape=(lineCount, 4),dtype= int)
-#         idx = 0
-#         with open(filename, "r") as f:
-#             for idx,line in enumerate(f.readlines()):
-#                 part = line.rstrip().split()
-#                 if part[0] not in chromindex:
-#                     chromindex.append(part[0])
-#
-#                 partindex = chromindex.index(part[0])
-#                 row = [partindex, part[1],part[2],part[3]]
-#
-#                 data[idx,:] = row
-#
-#         self.data = data
-#         self.chromindex = chromindex
-#         self.filename = filename
-#
-#     def getInit(self):
-#         return(self.data[:,1])
-#
-#     def getEnd(self):
-#         return(self.data[:,2])
-#
-#     def getCov(self):
-#         return(self.data[:,3])
-#
-#     def getChrom(self):
-#         chromlist = [self.chromindex[i] for i in self.data[:,0]]
-#
-#         return(chromlist)
+
+
+## Esta parte la tendria que meter antes de los calculos de region.
+class RegionFixer:
+    def __init__(self, coverages):
+        self.coverages = coverages
+    def process(self, chromosome, region):
+        region.coverages = self.coverages[region.covStartIndex:region.covEndIndex]
+        del region.covStartIndex
+        del region.covEndIndex
+# processor = RegionFixer(coverages)
+# coverages.iterateOverRegions(processor.process)
