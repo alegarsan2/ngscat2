@@ -93,6 +93,7 @@ def on_target_xls(read_on_results):
 
         ws.write(2, 0, 'Enrichment:', header_style)
         ws.write(2, 1, bam['enrichment'])
+        ws.write(4, 0, 'Table', header_style)
 
         ws.write(4, 1, 'Reads on target', header_style)
         ws.write(4, 2, 'Reads off target', header_style)
@@ -227,6 +228,7 @@ def duplicates_xls(read_on_results):
 
         ws.write(1, 0, 'Input bedfile:', header_style)
         ws.write(1, 1, read_on_results['bedfile'])
+        ws.write(3, 0, 'Table', header_style)
 
         ws.write(4, 0, '# on', header_style)
         ws.write(5, 0, '# off', header_style)
