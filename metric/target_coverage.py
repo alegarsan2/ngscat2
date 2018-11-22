@@ -17,7 +17,8 @@ def target_coverage(bamlist, coveragefiles, coveragethreshold, outdir, legend=No
     # calculation of number of bed position and different coverages within thresholds
     for i, coveragefile in enumerate(coveragefiles):
         ntotal = 0
-        for current_coverage in coveragefile.getCov():
+
+        for current_coverage in coveragefile.coverages:
             ntotal = ntotal + 1
             for j, cov in enumerate(coveragethreshold):
                 if current_coverage >= cov:
@@ -48,6 +49,24 @@ def target_coverage(bamlist, coveragefiles, coveragethreshold, outdir, legend=No
         json.dump(target_coverage_result, outfile)
     return target_coverage_result
 
+#
+# class HistogramBuilder:
+#     def __init__(self):
+#         self.histogram = {}
+#
+#     def processCoverage(self,chromosome,region,coverage):
+#         if coverage in self.histogram:
+#             self.histogram[coverage] += 1
+#         else:
+#             self.histogram[coverage] = 1
+#
+#     def getHistogram(self):
+#         histolist = [0] * (max(self.histogram) + 1)
+#         print(len(histolist))
+#         for key, value in self.histogram.items():
+#             histolist[key] = value
+#         return(histolist)
+
 
 def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto', warnthreshold = 40):
     # Histo_CV sustitute.
@@ -61,33 +80,37 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
     median= []
     zerocov = []
 
+
+
     for i, coveragefile in enumerate(coveragefiles):
-        #Deleta 0 coverage base positions
-        covnozero = coveragefile.getCov()[np.nonzero(coveragefile.getCov())]
-        number_read, bin_edges = np.histogram(covnozero,
-                                              bins= bins)
-        bin_edges= bin_edges.tolist()
+
+        #Non zero indexs
+        indnonzero = np.nonzero(coveragefile.coverages)
+
+        number_read, bin_edges = np.histogram(coveragefile.coverages[indnonzero], bins= bins)
+        bin_edges = bin_edges.tolist()
+
         width =  []
         xaxis = []
         for i in range(len(bin_edges)-1):
             xaxis.append((bin_edges[i]+ bin_edges[i +1])/2)
             width.append(bin_edges[1]- bin_edges[0])
 
-        histlist.append(dict([('numberread',number_read.tolist()),
-                              ('binedges',bin_edges),
-                              ('coveragepos',xaxis),
-                              ('width',width)]))
+        histlist.append(dict([('numberread', number_read.tolist()),
+                              ('binedges', bin_edges),
+                              ('coveragepos', xaxis),
+                              ('width', width)]))
 
         percentile.append(dict(
-            [('Q1', np.percentile(coveragefile.getCov(), 25)),
-            ('Q2', np.percentile(coveragefile.getCov(), 50)),
-            ('Q3', np.percentile(coveragefile.getCov(), 75))
+            [('Q1', np.percentile(coveragefile.coverages, 25)),
+            ('Q2', np.percentile(coveragefile.coverages, 50)),
+            ('Q3', np.percentile(coveragefile.coverages, 75))
             ]))
-        median.append(np.median(coveragefile.getCov()))
-        maximum.append(np.max(coveragefile.getCov()))
-        minimum.append(np.min(coveragefile.getCov()))
-        mean.append(coveragefile.getCov().mean())
-        zerocov.append(len(coveragefile.getCov() - len(covnozero)))
+        median.append(np.median(coveragefile.coverages))
+        maximum.append(np.max(coveragefile.coverages))
+        minimum.append(np.min(coveragefile.coverages))
+        mean.append(coveragefile.coverages.mean())
+        zerocov.append(len(coveragefile.coverages) - len(indnonzero))
         #TODO ver que parametros metemos en el JSON
     for i in range(len(bamlist)):
         results.append(dict(
@@ -111,4 +134,4 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
     with open(outdir + '/target_distribution_result.json', 'w') as outfile:
         json.dump(target_distribution_result, outfile)
 
-    return target_distribution_result, covnozero
+    return target_distribution_result, coveragefiles
