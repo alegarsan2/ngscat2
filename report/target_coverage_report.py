@@ -1,4 +1,4 @@
-
+import numpy as np
 import plotly.graph_objs as go
 import plotly
 import xlwt
@@ -74,7 +74,7 @@ def target_coverage_xls(target_coverage_result):
 
     wb.save(target_coverage_result['outdir'] + '/coverage_summary.xls')
 
-def target_distribution_plot(target_distribution_result):
+def target_distribution_histplot(target_distribution_result):
     colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
     data = []
     for i, coveragefile in enumerate(target_distribution_result['results']):
@@ -109,6 +109,36 @@ def target_distribution_plot(target_distribution_result):
     plotly.offline.plot(fig, filename=target_distribution_result['outdir'] + 'target_hist.html',
                         auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
+
+def target_distribution_boxplot(target_distribution_result,coveragelist):
+    colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
+    data = []
+    for i, coveragefile in enumerate(coveragelist):
+        trace = go.Box(
+            #Random subsampling in order to represent fasther the data. Final size 100000 points
+            y = np.random.choice(coveragefile.coverages,
+                                 size= int(len(coveragefile.coverages)/((len(coveragefile.coverages) // 100000)
+                                                                        if len(coveragefile.coverages) > 100000 else 1))),
+            name = target_distribution_result['results'][i]['legend'],
+            marker=dict(
+                color=colors[i],
+            ),
+            boxpoints= 'suspectedoutliers',
+        jitter= 0.01)
+        data.append(trace)
+
+    layout_comp = go.Layout(
+            title='',
+            hovermode='closest',
+            #barmode='group',
+            xaxis=dict(showticklabels=True, showgrid=True, title=''),
+            yaxis=dict(title='Count',
+                       autorange = True)
+        )
+
+    fig = go.Figure(data=data, layout=layout_comp)
+    plotly.offline.plot(fig, filename=target_distribution_result['outdir'] + 'target_boxplot.html',
+                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 def target_distribution_xls(target_distribution_result):
     wb = xlwt.Workbook()
 
@@ -148,12 +178,5 @@ def target_distribution_xls(target_distribution_result):
         ws.write(6, 5, coveragefile['min'])
         ws.write(6, 6, coveragefile['median'])
         ws.write(6, 7, coveragefile['mean'])
-
-
-
-        # for j, depth in enumerate(coveragefile['coveredposition']):
-        #     ws.write(4, 1 + j, depth, header_style)
-        #     ws.write(5, 1 + j, coveragefile['coveredposition'][depth])
-        #     ws.write(6, 1 + j, coveragefile['perccoveredposition'][depth])
 
     wb.save(target_distribution_result['outdir'] + '/percentile.xls')
