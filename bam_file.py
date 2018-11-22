@@ -12,6 +12,8 @@ import pysam
 #import sets
 import coverage_file
 import subprocess
+import array
+import numpy as np
 try:
     import numpy
 except ImportError:
@@ -494,6 +496,7 @@ class bam_file(pysam.Samfile):
         #
         # if (writeToFile != None):  # Results written to output file
         #     fdw = open(writeToFile, 'w')
+
         sortedBam = self
         positionArray_intersect = []
         coverageArray_intersect = []
@@ -512,14 +515,10 @@ class bam_file(pysam.Samfile):
         # Instanciate class
         coveragefile = coverage_file.Coveragefile(self.filename)
 
+        covertotal = array.array('I')
 
-
-
-
-        lchrom = []
-        lexon = []
-        finexon = []
-        fincov = []
+        idxregion = 0
+        jdxregion = 0
 
         # Move along all chromosomes
         for currentChromosome in finalBed.chrs.keys():
@@ -566,8 +565,7 @@ class bam_file(pysam.Samfile):
 
 
 
-                    xcov = []
-                    lexon = []
+
                     # First iteration is done manually
                     positionArray.append(selectedPositions_init[0])  # Init position of the first read
                     coverageArray.append(1)  # A single read (coverage=1)
@@ -695,7 +693,7 @@ class bam_file(pysam.Samfile):
                 nextPositionChange = indexCoverage  # positionArray[indexCoverage] contains next position after exon_end in which coverage changes
 
                 if (endPosition != startPosition or thereAreReads):  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
-                    numElements = endPosition - startPosition + 1  # Num of coverage/bases values to be interseted
+                    #numElements = endPosition - startPosition + 1  # Num of coverage/bases values to be interseted
                     # if (writeToFile is None):
                     #     if (readsAfterExonBeg):
                     #         positionArray_intersect.extend([exon_init])
@@ -720,33 +718,29 @@ class bam_file(pysam.Samfile):
                         dicExon[exon_init] = 0
 
                     currentCoverageArray = coverageArray[startPosition:(endPosition + 1)]
-                    dicExon.update(
-                        zip(currentPositionArray, currentCoverageArray))  # Fill positions where coverage changes
+                    # Fill positions where coverage changes
+                    dicExon.update(zip(currentPositionArray, currentCoverageArray))
 
                     previousKey = sorted(dicExon.keys())[0]
 
                     for currentKey in sorted(dicExon.keys()):
+                        jdxregion += 1
+
                         if (dicExon[currentKey] == -1):  # Take into account the coverage of the last position (key) that has coverage
 
-                            # dicExon[currentKey]=dicExon[previousKey]
                             covlist.append(dicExon[previousKey])
-
-
-                            # fdw.write(
-                            #     str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
-                            #         dicExon[previousKey]) + '\n')
 
                         else:
                             covlist.append(dicExon[currentKey])
-
-                            # fdw.write(
-                            #     str(currentChromosome) + '\t' + str(exon_init) + '\t' + str(exon_end) + '\t' + str(
-                            #         dicExon[currentKey]) + '\n')
                             previousKey = currentKey
 
-                    # xcov.append(covlist)
-                    region.coverages = covlist
-                    #covlist = []
+                    covertotal.extend(covlist)
+                    region.covStartIndex = idxregion
+                    region.covEndIndex = jdxregion
+
+                    #Go for the next region
+                    idxregion = jdxregion
+
                     previousIndexCoverage = indexCoverage
 
                 else:  # A exon is not covered -> startPosition moves until the end but endPosition could not move more. However, we want to point that, although there are no reads for
@@ -756,36 +750,35 @@ class bam_file(pysam.Samfile):
                     dicExon = dict(zip(keys, [0] * len(keys)))
 
                     for currentKey in sorted(dicExon.keys()):
+                        jdxregion += 1
+
                         covlist.append(dicExon[currentKey])
 
 
-                    region.coverages = covlist
+                    covertotal.extend(covlist)
+                    region.covStartIndex = idxregion
+                    region.covEndIndex = jdxregion
 
-
+                    idxregion = jdxregion
                     # Move backwards in positionArray to search reads for the next exon (all exons have not visited yet)
                     indexCoverage = previousIndexCoverage
-                #xcov.append(covlist)
+
                 chromosome.regions.append(region)
 
 
 
             coveragefile.chromosomes.append(chromosome)
 
-            # fincov.append(xcov)
-            # lchrom.append(currentChromosome)
-            # finexon.append(lexon)
-            # # Get the positions in the intersection vector for the current chromosome
-            #chromosomeCoordinates[currentChromosome] = (firstPosition, len(positionArray_intersect) - 1)
+        coveragefile.coverages = np.array(covertotal ,dtype= np.uint32)
 
+        del positionArray
+        gc.collect()
 
-            del positionArray
-            gc.collect()
+        del coverageArray
+        gc.collect()
 
-            del coverageArray
-            gc.collect()
-
-        positionArray_intersect = numpy.array(positionArray_intersect, dtype=numpy.uint32)
-        coverageArray_intersect = numpy.array(coverageArray_intersect, dtype=numpy.uint16)
+        # positionArray_intersect = numpy.array(positionArray_intersect, dtype=numpy.uint32)
+        # = numpy.array(coverageArray_intersect, dtype=numpy.uint16)
 
         # if (writeToFile != None):
         #     fdw.close()
