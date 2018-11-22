@@ -90,7 +90,7 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
         number_read, bin_edges = np.histogram(coveragefile.coverages[indnonzero], bins= bins)
         bin_edges = bin_edges.tolist()
 
-        width =  []
+        width = []
         xaxis = []
         for i in range(len(bin_edges)-1):
             xaxis.append((bin_edges[i]+ bin_edges[i +1])/2)
@@ -98,7 +98,7 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
 
         histlist.append(dict([('numberread', number_read.tolist()),
                               ('binedges', bin_edges),
-                              ('coveragepos', xaxis),
+                              ('coveragepos', [round(x,2) for x in xaxis]),
                               ('width', width)]))
 
         percentile.append(dict(
