@@ -116,15 +116,15 @@ def target_distribution_boxplot(target_distribution_result,coveragelist):
     for i, coveragefile in enumerate(coveragelist):
         trace = go.Box(
             #Random subsampling in order to represent fasther the data. Final size 100000 points
-            y = np.random.choice(coveragefile.coverages,
-                                 size= int(len(coveragefile.coverages)/((len(coveragefile.coverages) // 100000)
+            y=np.random.choice(coveragefile.coverages,
+                                 size=int(len(coveragefile.coverages)/((len(coveragefile.coverages) // 100000)
                                                                         if len(coveragefile.coverages) > 100000 else 1))),
-            name = target_distribution_result['results'][i]['legend'],
+            name=target_distribution_result['results'][i]['legend'],
             marker=dict(
                 color=colors[i],
             ),
-            boxpoints= 'suspectedoutliers',
-        jitter= 0.01)
+            boxpoints='suspectedoutliers',
+        jitter=0.01)
         data.append(trace)
 
     layout_comp = go.Layout(
@@ -132,13 +132,13 @@ def target_distribution_boxplot(target_distribution_result,coveragelist):
             hovermode='closest',
             #barmode='group',
             xaxis=dict(showticklabels=True, showgrid=True, title=''),
-            yaxis=dict(title='Count',
+            yaxis=dict(title='Depth',
                        autorange = True)
         )
 
     fig = go.Figure(data=data, layout=layout_comp)
     plotly.offline.plot(fig, filename=target_distribution_result['outdir'] + 'target_boxplot.html',
-                        auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                        auto_open=True, config= dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 def target_distribution_xls(target_distribution_result):
     wb = xlwt.Workbook()
 
