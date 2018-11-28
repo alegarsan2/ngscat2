@@ -19,8 +19,7 @@ def target_coverage_plot(target_coverage_result):
                         line=dict(
                             color='rgb(0,0,0)',
                             width=.6)
-                        ), )
-
+                        ),)
 
         data.append(trace)
 
@@ -180,3 +179,94 @@ def target_distribution_xls(target_distribution_result):
         ws.write(6, 7, coveragefile['mean'])
 
     wb.save(target_distribution_result['outdir'] + '/percentile.xls')
+
+
+
+
+
+def coverage_per_chr(coveragelist,outdir):
+                     # npoint,  warnregionsize = 100, warnthreshold=6):
+    for coverage in coveragelist:
+        c = coverage
+        i = 0
+
+        for chr in coverage.chromosomes:
+            medianlen = []
+            regionlens = []
+            medianlen = 0
+            y = []
+            regmean = []
+            regstd = []
+            regindx = []
+            error = []
+            text = []
+            traces  = []
+            numofregion = len(chr.regions)
+
+            #Take median lenght in order to establish the window size.
+            if numofregion > 1000:
+                print(len(chr.regions))
+                for region in chr.regions:
+                    regionlens.append(region.covEndIndex - region.covStartIndex)
+                medianlen = np.median(regionlens)
+                print("A")
+
+
+            i = 700
+            for idx, region in enumerate(chr.regions):
+                a = region.covEndIndex
+                if region.covEndIndex < i and idx != numofregion:
+
+                    #Check wether the region is
+                    regmean.append(region.mean)
+                    regstd.append(region.std)
+                    regindx.append(idx)
+
+                else: # save data points
+                    regmean.append(region.mean)
+                    regstd.append(region.std)
+                    regindx.append(idx)
+
+                    i = region.covEndIndex + 700
+
+                    y.append(np.mean(regmean))
+                    error.append(np.std(regmean))
+                    text.append( 'Start\t\t\t End\t\t\t Mean\t\t\t\t   Std <br>' + "".join([str(chr.regions[x].start) + "\t " + str(chr.regions[x].end) + "\t " +
+                                         str(round(chr.regions[x].mean,2)) + "\t " + str(round(chr.regions[x].std,2)) + "<br>" for x in regindx]))
+                    # Current index will be the index of the end of last region.
+                    # Reboot
+                    regmean = []
+                    regstd = []
+                    regindx = []
+
+
+            colors = ['rgb(0,102,0)', 'rgb(255,178,178)', 'rgb(102,178,255)', 'rgb(178,102,255)']
+            trace = go.Scatter(
+                x=list(range(0,len(y))),
+                y=y,
+                error_y=dict(
+                    type='data',
+                    array=error,
+                    visible=True,
+                    thickness=1.5,
+                    width=1,
+                    color = '#c2d6d6' ),
+                hoverinfo='text',
+                text=text,
+                mode='lines',
+                name=str(coverage.name),
+                line=dict(color=colors[0]),
+            )
+            traces.append(trace)
+
+
+            layout_comp = go.Layout(
+                title=str(chr.name),
+                hovermode='closest',
+                xaxis=dict(showticklabels=False, showgrid=False),
+                yaxis=dict(title="Coverage", range = [0, max(y)]))
+
+            fig = go.Figure(data=traces, layout=layout_comp)
+            plotly.offline.plot(fig, filename=outdir + chr.name + '_Ontarget_Coverage.html',
+                                auto_open=True,
+                                config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
