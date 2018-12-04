@@ -514,7 +514,7 @@ class bam_file(pysam.Samfile):
 
         # Instanciate class
         coveragefile = coverage_file.Coveragefile(self.filename)
-
+        coveragefile.bedfilename  = target
         covertotal = array.array('I')
 
         idxregion = 0
@@ -693,21 +693,7 @@ class bam_file(pysam.Samfile):
                 nextPositionChange = indexCoverage  # positionArray[indexCoverage] contains next position after exon_end in which coverage changes
 
                 if (endPosition != startPosition or thereAreReads):  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
-                    #numElements = endPosition - startPosition + 1  # Num of coverage/bases values to be interseted
-                    # if (writeToFile is None):
-                    #     if (readsAfterExonBeg):
-                    #         positionArray_intersect.extend([exon_init])
-                    #         coverageArray_intersect.extend([0])
-                    #
-                    #     positionArray_intersect.extend(positionArray[startPosition:(endPosition + 1)])
-                    #     coverageArray_intersect.extend(coverageArray[startPosition:(endPosition + 1)])
-                    #
-                    #     # It may happen that positionArray[startPosition] and positionArray[endPosition+1] are not equal to the beginning and end of the exon respectively
-                    #     # Thus, it is forced to modify positionArray_intersect[indexIntersect] and positionArray_intersect[indexIntersect_end-1] to the beggining and end of the exon respectively
-                    #     if (not readsAfterExonBeg):
-                    #         positionArray_intersect[-numElements] = exon_init
-                    # positionArray_intersect[-1]=exon_end # No es valido si la posicion final del exon tiene el mismo coverage que otra posicion anterior
-                    # Write to file base per base current exon
+
                     keys = range(exon_init, exon_end + 1)
                     dicExon = dict(zip(keys, [-1] * len(keys)))
 
@@ -737,6 +723,9 @@ class bam_file(pysam.Samfile):
                     covertotal.extend(covlist)
                     region.covStartIndex = idxregion
                     region.covEndIndex = jdxregion
+                    region.mean = np.mean(covlist)
+                    region.std = np.std(covlist)
+                    region.zeropos = [i for i,x in enumerate(covlist) if x == 0]
 
                     #Go for the next region
                     idxregion = jdxregion
@@ -758,7 +747,9 @@ class bam_file(pysam.Samfile):
                     covertotal.extend(covlist)
                     region.covStartIndex = idxregion
                     region.covEndIndex = jdxregion
-
+                    region.mean = np.mean(covlist)
+                    region.std = np.std(covlist)
+                    region.zeropos = [i for i,x in enumerate(covlist) if x == 0]
                     idxregion = jdxregion
                     # Move backwards in positionArray to search reads for the next exon (all exons have not visited yet)
                     indexCoverage = previousIndexCoverage
@@ -768,7 +759,6 @@ class bam_file(pysam.Samfile):
 
 
             coveragefile.chromosomes.append(chromosome)
-
         coveragefile.coverages = np.array(covertotal ,dtype= np.uint32)
 
         del positionArray
@@ -776,12 +766,6 @@ class bam_file(pysam.Samfile):
 
         del coverageArray
         gc.collect()
-
-        # positionArray_intersect = numpy.array(positionArray_intersect, dtype=numpy.uint32)
-        # = numpy.array(coverageArray_intersect, dtype=numpy.uint16)
-
-        # if (writeToFile != None):
-        #     fdw.close()
 
 
 
