@@ -70,6 +70,8 @@ def target_coverage(bamlist, coveragefiles, coveragethreshold, outdir, legend=No
 
 def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto', warnthreshold = 40):
     # Histo_CV sustitute.
+
+# FIXME no hace falta poner bamlist ni bedfile, está incluida esa info en coverage.name y coverage.bedfilename()
     target_distribution_result = {}
     results = []
     histlist = []
@@ -86,7 +88,7 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
 
         #Non zero indexs
         indnonzero = np.nonzero(coveragefile.coverages)
-
+        #FIXME no existe normalizacion de tamaño de bins, solo toma segun el tamaño de la muestra(como es sin 0) QUitar 0??
         number_read, bin_edges = np.histogram(coveragefile.coverages[indnonzero], bins= bins)
         bin_edges = bin_edges.tolist()
 
@@ -135,3 +137,14 @@ def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto'
         json.dump(target_distribution_result, outfile)
 
     return target_distribution_result, coveragefiles
+
+
+# def getStd(chromosome,region):
+#     '''Returns std of region that are covered'''
+#     if region.
+#     return region.std
+#
+# def std_distribution(coveragelist, outputdir, coveragesstd= None, wenthreshold = 0.3):
+#     stdlist = []
+#     for coverage in coveragelist:
+#         stdlist.append(coverage.iterateOverRegions(getStd))

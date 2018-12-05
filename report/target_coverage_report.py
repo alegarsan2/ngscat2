@@ -3,6 +3,9 @@ import plotly.graph_objs as go
 import plotly
 import xlwt
 
+from metric.region_coverage import getChromosomeNames, computeWindowSize, renderCoveragePerChr
+
+
 def target_coverage_plot(target_coverage_result):
     colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
     data = []
@@ -28,8 +31,16 @@ def target_coverage_plot(target_coverage_result):
         hovermode='closest',
         barmode='group',
         xaxis=dict(showticklabels=True, showgrid=True, title='Coverage threshold'),
-        yaxis=dict(title='% covered positions',range=[0, 100])
+        yaxis=dict(title='% covered positions',range=[0, 100]),
+        margin=go.layout.Margin(
+            l=50,
+            r=10,
+            b=10,
+            t=50,
+            pad=4
+        ),
     )
+
 
     fig = go.Figure(data=data, layout=layout_comp)
     plotly.offline.plot(fig, filename=target_coverage_result['outdir'] + 'covered_positions.html',
@@ -123,7 +134,7 @@ def target_distribution_boxplot(target_distribution_result,coveragelist):
                 color=colors[i],
             ),
             boxpoints='suspectedoutliers',
-        jitter=0.01)
+            jitter=0.01)
         data.append(trace)
 
     layout_comp = go.Layout(
@@ -132,8 +143,16 @@ def target_distribution_boxplot(target_distribution_result,coveragelist):
             #barmode='group',
             xaxis=dict(showticklabels=True, showgrid=True, title=''),
             yaxis=dict(title='Depth',
-                       autorange = True)
+                       autorange = True),
+            margin=go.layout.Margin(
+                l=50,
+                r=10,
+                b=10,
+                t=50,
+                pad=4
+            ),
         )
+
 
     fig = go.Figure(data=data, layout=layout_comp)
     plotly.offline.plot(fig, filename=target_distribution_result['outdir'] + 'target_boxplot.html',
@@ -181,92 +200,142 @@ def target_distribution_xls(target_distribution_result):
     wb.save(target_distribution_result['outdir'] + '/percentile.xls')
 
 
-
-
-
-def coverage_per_chr(coveragelist,outdir):
+def coverage_per_chr(coveragelist, npoints, outdir):
                      # npoint,  warnregionsize = 100, warnthreshold=6):
-    for coverage in coveragelist:
-        c = coverage
-        i = 0
 
-        for chr in coverage.chromosomes:
-            medianlen = []
-            regionlens = []
-            medianlen = 0
-            y = []
-            regmean = []
-            regstd = []
-            regindx = []
-            error = []
-            text = []
-            traces  = []
-            numofregion = len(chr.regions)
+        chromosomeNames = getChromosomeNames(coveragelist[0])
+        for chromosomeName in chromosomeNames:
+            traces = []
 
-            #Take median lenght in order to establish the window size.
-            if numofregion > 1000:
-                print(len(chr.regions))
-                for region in chr.regions:
-                    regionlens.append(region.covEndIndex - region.covStartIndex)
-                medianlen = np.median(regionlens)
-                print("A")
-
-
-            i = 700
-            for idx, region in enumerate(chr.regions):
-                a = region.covEndIndex
-                if region.covEndIndex < i and idx != numofregion:
-
-                    #Check wether the region is
-                    regmean.append(region.mean)
-                    regstd.append(region.std)
-                    regindx.append(idx)
-
-                else: # save data points
-                    regmean.append(region.mean)
-                    regstd.append(region.std)
-                    regindx.append(idx)
-
-                    i = region.covEndIndex + 700
-
-                    y.append(np.mean(regmean))
-                    error.append(np.std(regmean))
-                    text.append( 'Start\t\t\t End\t\t\t Mean\t\t\t\t   Std <br>' + "".join([str(chr.regions[x].start) + "\t " + str(chr.regions[x].end) + "\t " +
-                                         str(round(chr.regions[x].mean,2)) + "\t " + str(round(chr.regions[x].std,2)) + "<br>" for x in regindx]))
-                    # Current index will be the index of the end of last region.
-                    # Reboot
-                    regmean = []
-                    regstd = []
-                    regindx = []
-
-
-            colors = ['rgb(0,102,0)', 'rgb(255,178,178)', 'rgb(102,178,255)', 'rgb(178,102,255)']
-            trace = go.Scatter(
-                x=list(range(0,len(y))),
-                y=y,
-                error_y=dict(
-                    type='data',
-                    array=error,
-                    visible=True,
-                    thickness=1.5,
-                    width=1,
-                    color = '#c2d6d6' ),
-                hoverinfo='text',
-                text=text,
-                mode='lines',
-                name=str(coverage.name),
-                line=dict(color=colors[0]),
-            )
-            traces.append(trace)
-
-
+            windowsize  = computeWindowSize(coveragelist[0], chromosomeName, npoints)
+            traces = []
+            for coverage in coveragelist:
+                trace = renderCoveragePerChr(coverage, chromosomeName, windowsize)
+                traces.append(trace)
+            maxrange = max([max(trace.y) for trace in traces])
             layout_comp = go.Layout(
-                title=str(chr.name),
+                title=chromosomeName,
                 hovermode='closest',
                 xaxis=dict(showticklabels=False, showgrid=False),
-                yaxis=dict(title="Coverage", range = [0, max(y)]))
+                yaxis=dict(title="Coverage", range=[0, maxrange + maxrange / 30]),
+                margin=go.layout.Margin(
+                    l=50,
+                    r=10,
+                    b=10,
+                    t=50,
+                    pad=4
+                ),
+            )
 
             fig = go.Figure(data=traces, layout=layout_comp)
-            plotly.offline.plot(fig, filename=outdir + chr.name + '_Ontarget_Coverage.html',
+            plotly.offline.plot(fig, filename=outdir + chromosomeName + '_Ontarget_Coverage.html',
                                 auto_open=True,
-                                config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                                config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                            showLink=False))
+
+
+
+#def region_std_distribution_histplot(coveragelist, ):
+
+
+
+# for coverage in coveragelist:
+#     c = coverage
+#     i = 0
+#
+#     for chr in coverage.chromosomes:
+#         medianlen = []
+#         regionlens = []
+#         medianlen = 0
+#         y = []
+#         regmean = []
+#         regstd = []
+#         regindx = []
+#         error = []
+#         text = []
+#         traces = []
+#         numofregion = len(chr.regions)
+#         totallen = 0
+#         npointsratio = 0  # Number of points using median as window size
+#
+#         # Take median lenght in order to establish the window size.
+#         if numofregion > 10:
+#             print(len(chr.regions))
+#             for region in chr.regions:
+#                 regionlens.append(region.covEndIndex - region.covStartIndex)
+#             medianlen = np.median(regionlens)
+#             totallen = sum(regionlens)
+#
+#         # If median is used and the number of points is greater than (npoints) look for multiple of median until
+#         # npoints is reached.
+#         npointsratio = int(totallen / (medianlen if medianlen > 0 else 1))
+#         if npointsratio >= 10:
+#             windowsize = int(medianlen * (npointsratio // 10))
+#             i = windowsize
+#             for idx, region in enumerate(chr.regions):
+#
+#                 if region.covEndIndex < i and idx != numofregion:
+#                     # Check wether the region is
+#                     regmean.append(region.mean)
+#                     regstd.append(region.std)
+#                     regindx.append(idx)
+#
+#                 else:  # save data points
+#                     regmean.append(region.mean)
+#                     regstd.append(region.std)
+#                     regindx.append(idx)
+#
+#                     i = region.covEndIndex + windowsize
+#
+#                     y.append(np.mean(regmean))
+#                     error.append(np.std(regmean))
+#                     text.append('Start\t\t\t End\t\t\t Mean\t\t\t\t   Std <br>' +
+#                                 "".join([str(chr.regions[x].start) + "\t " + str(chr.regions[x].end) + "\t " +
+#                                          str(round(chr.regions[x].mean, 2)) + "\t " + str(round(chr.regions[x].std, 2)) +
+#                                          "<br>" for x in regindx]))
+#                     regmean = []
+#                     regstd = []
+#                     regindx = []
+#
+#             colors = ['rgb(0,102,0)', 'rgb(255,178,178)', 'rgb(102,178,255)', 'rgb(178,102,255)']
+#             trace = go.Scatter(
+#                 x=list(range(0, len(y))),
+#                 y=y,
+#                 error_y=dict(
+#                     type='data',
+#                     array=error,
+#                     visible=True,
+#                     thickness=1.5,
+#                     width=1,
+#                     color='#c2d6d6'),
+#                 hoverinfo='text',
+#                 text=text,
+#                 mode='lines+markers',
+#                 name=str(coverage.name),
+#                 line=dict(color=colors[0]),
+#             )
+#             traces.append(trace)
+#
+#             layout_comp = go.Layout(
+#                 title=str(chr.name),
+#                 hovermode='closest',
+#                 xaxis=dict(showticklabels=False, showgrid=False),
+#                 yaxis=dict(title="Coverage", range=[0, max(y) + max(y) / 30]),
+#                 margin=go.layout.Margin(
+#                     l=50,
+#                     r=10,
+#                     b=10,
+#                     t=50,
+#                     pad=4
+#                 ),
+#             )
+#
+#             fig = go.Figure(data=traces, layout=layout_comp)
+#             plotly.offline.plot(fig, filename=outdir + chr.name + '_Ontarget_Coverage.html',
+#                                 auto_open=True,
+#                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'], showLink=False))
+#
+#             print("A")
+#
+#                 # Current index will be the index of the end of last region.
+#                 # Reboot
