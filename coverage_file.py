@@ -64,39 +64,39 @@ class RegionFixer():
             for region in chromosome.regions:
                 processRegions(chromosome, region)
 
-class ZeroProcessor:
-    def __init__(self, coveragefilecoverages):
-        self.coverages = coveragefilecoverages
-
-    def process(self, chromosome, region):
-        zeroregion = []
-        initzero = None
-        rinit = region.start
-        regionlen = region.end - region.start
-        regionidx = region.covStartIndex
-        regioni = self.coverages[region.covStartIndex:region.covEndIndex]
-        for idx, basecoverage in enumerate(regioni):
-            if idx != regionlen:
-                if basecoverage == 0:
-                    if initzero is None:
-                        initzero = idx
-                else:
-                    if initzero is not None:
-                        zeroregion.append([chromosome.name, initzero + region.start, idx + region.start])
-                        initzero = None
-            else:
-                if basecoverage == 0 and initzero is not None:
-                    zeroregion.append([chromosome.name, initzero + region.start, idx + 1 + region.start])
-                else:
-                    zeroregion.append([chromosome.name, idx + region.start, idx + 1 + region.start])
-        if zeroregion is not None:
-            return zeroregion
-        # quedarme con las regiones
-
-
-# zerosProcessor = ZeroProcessor(coveragefile.coverages)
-# coveragefile.iterateOverRegions(zerosProcessor.process)
-
-
-# processor = RegionFixer(coverages)
-# coverages.iterateOverRegions(processor.process)
+# class ZeroProcessor:
+#     def __init__(self, coveragefilecoverages):
+#         self.coverages = coveragefilecoverages
+#
+#     def process(self, chromosome, region):
+#         zeroregion = []
+#         initzero = None
+#         rinit = region.start
+#         regionlen = region.end - region.start
+#         regionidx = region.covStartIndex
+#         regioni = self.coverages[region.covStartIndex:region.covEndIndex]
+#         for idx, basecoverage in enumerate(regioni):
+#             if idx != regionlen:
+#                 if basecoverage == 0:
+#                     if initzero is None:
+#                         initzero = idx
+#                 else:
+#                     if initzero is not None:
+#                         zeroregion.append([chromosome.name, initzero + region.start, idx + region.start])
+#                         initzero = None
+#             else:
+#                 if basecoverage == 0 and initzero is not None:
+#                     zeroregion.append([chromosome.name, initzero + region.start, idx +  region.start])
+#                 else:
+#                     zeroregion.append([chromosome.name, idx + region.start, idx +  region.start])
+#
+#         return zeroregion
+#         # quedarme con las regiones
+#
+#
+# # zerosProcessor = ZeroProcessor(coveragefile.coverages)
+# # coveragefile.iterateOverRegions(zerosProcessor.process)
+#
+#
+# # processor = RegionFixer(coverages)
+# # coverages.iterateOverRegions(processor.process)
