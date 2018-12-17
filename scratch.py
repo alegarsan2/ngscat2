@@ -16,6 +16,22 @@ import bam_file
 import coverage_file
 from metric import region_coverage
 from report import target_coverage_report
+#from metric.gc_bias.metric import GcBiasProcessor
+#from report.html.gc_bias.report import Report
+
+#from metric.depth_threshold.metric import DepthThresProcessor
+#from report.html.depth_distribution.report import Report
+
+#from report.xls.depth_threshold.report import Report
+
+
+
+
+
+from metric.onoff_reads.metric import OnOffReadsProcessor
+from report.xls.onoff_reads.report import Report
+
+
 def main():
 
     # Test code for percentage target(duplicates no duplicates)
@@ -32,21 +48,20 @@ def main():
     start = time.time()
     print(start)
     # bam = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/hg00096.bam')
-    #bam = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/1_T_25309.sorted.dedup.filtered.bam')
-    bam1 = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/sort_example1.bam')
-    bam = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/example2.bam')
+    bam = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/1_T_25309.sorted.dedup.filtered.bam')
+    #bam1 = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/sort_example1.bam')
+    #bam = bam_file.bam_file('/home/agarcia/PycharmProjects/ngscat/example2.bam')
     #
     # cover, x = bam.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/exome.targets.g1k.bed')
     #cover, x = bam.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/talidomida_v2_primary_targets.bed')
-    cover, y = bam.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/seqcap.example2.bed')
-    cover2, y = bam1.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/seqcap.example2.bed')
-    end = time.time()
+    #cover, y = bam.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/seqcap.example2.bed')
+    #cover2, y = bam1.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/seqcap.example2.bed')
 
-    print(end - start)
+
     #result, covlist = target_coverage.target_distribution([bam], [cover], "/home/agarcia/PycharmProjects/ngscat3/", bins = 100)
     #z = target_coverage_report.coverage_per_chr([cover,cover2], 20 ,'/home/agarcia/PycharmProjects/ngscat/')
     #region_coverage.zeroCoverageRegions(cover, '/home/agarcia/PycharmProjects/ngscat/')
-    region_coverage.region_std_distribution([cover],'/home/agarcia/PycharmProjects/ngscat/')
+    #region_coverage.region_std_distribution([cover],'/home/agarcia/PycharmProjects/ngscat/')
     # target_coverage_report.target_distribution_histplot(result)
     # target_coverage_report.target_distribution_boxplot(result, covlist)
 
@@ -54,11 +69,44 @@ def main():
 
 
 
+    # TODO esta parte es la que se usa para llamar al report. Tengo que generar la clase rootReporter que tomará como
+    # TODO como argumento el outdir y luego,
+    # reporter = Report('/home/agarcia/PycharmProjects/ngscat/')
+    # GcBiasProcessor().process([cover],'/home/agarcia/PycharmProjects/ngscat/hg19.fa', reporter.report)
+
+    # rootReporter = HtmlReporter('/home/agarcia/PycharmProjects/ngscat/')
+    # rootReporter.output_path =
+    # def rootReporter.output():
+    #   generate Uniformity section
+    #   ...
+    #   generate Summary section
+    #       ask reporter for '% reads on target'
+    #       self.depthPosition.Reporter.summary()['read_on_targets']
+
+
+    # rootReporter.addSummaryInfo(key, value)
+    # rootReporter.addSection(path)
+
+
+    # reporter = Report(rootReporter)
+    #   rootReporter.setDepthPositionReporter(self)
+    # reporter.process  = ...
+    # self.rootReporter.addSection(sectionName, filename)
+    # se.rootReporter.addSummaryInfo('Number reads', ...)
+    # tras join, rootReporter.write
+
+
+    reporter = Report('/home/agarcia/PycharmProjects/ngscat/')
+    OnOffReadsProcessor().process([bam],'/home/agarcia/PycharmProjects/ngscat/talidomida_v2_primary_targets.bed', reporter.report)
+
+
+    #DepthThresProcessor().process([cover], [1,10,20,30,40], 0.3, reporter.report)
+    #z = GcBiasProcessor().process([cover],'/home/agarcia/PycharmProjects/ngscat/hg19.fa')
+
     # bam = bam_file.bam_file('/home/agarcia/Downloads/hg00096.bam')
     # inter = bam.myCoverageBed('/home/agarcia/Downloads/exome.targets.g1k.bed',writeToFile='/home/agarcia/PycharmProjects/ngscat3/prueba_exome')
 
     # #bam.myCoverageBed('/home/agarcia/PycharmProjects/ngscat/seqcap.example2.bed',writeToFile='/home/agarcia/PycharmProjects/ngscat3/coveragefile')
-
 
 
 
@@ -104,7 +152,6 @@ def main():
 
 
 
-    print ("a")
 
 
 if __name__=='__main__':

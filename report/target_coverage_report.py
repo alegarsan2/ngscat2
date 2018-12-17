@@ -120,7 +120,7 @@ def target_distribution_histplot(target_distribution_result):
                         auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
 
-def target_distribution_boxplot(target_distribution_result,coveragelist):
+def target_distribution_boxplot(target_distribution_result, coveragelist):
     colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
     data = []
     for i, coveragefile in enumerate(coveragelist):
@@ -207,7 +207,7 @@ def coverage_per_chr(coveragelist, npoints, outdir):
         for chromosomeName in chromosomeNames:
             traces = []
 
-            windowsize  = computeWindowSize(coveragelist[0], chromosomeName, npoints)
+            windowsize = computeWindowSize(coveragelist[0], chromosomeName, npoints)
             traces = []
             for coverage in coveragelist:
                 trace = renderCoveragePerChr(coverage, chromosomeName, windowsize)

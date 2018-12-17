@@ -9,7 +9,6 @@ class Region():
         self.covEndIndex = None
         self.mean = None
         self.std = None
-        self.zeropos = None
 
     def iterateOverCoverages(self, processCoverages):
         processCoverages(self, coverage)
@@ -40,6 +39,12 @@ class Coveragefile():
         for chrom in self.chromosomes:
             if chrom.name == chromosomeName:
                 return chrom
+
+    def getChromosomeNames(self):
+        chromnamelist = []
+        for chrom in self.chromosomes:
+            chromnamelist.append(chrom.name)
+        return chromnamelist
 
     # def iterateOverCoverages(self,processCoverages):
     #     for chromosome in self.chromosomes:

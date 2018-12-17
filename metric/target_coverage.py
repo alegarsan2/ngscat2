@@ -71,7 +71,7 @@ def target_coverage(bamlist, coveragefiles, coveragethreshold, outdir, legend=No
 def target_distribution(bamlist, coveragefiles, outdir, legend=None, bins='auto', warnthreshold = 40):
     # Histo_CV sustitute.
 
-# FIXME no hace falta poner bamlist ni bedfile, está incluida esa info en coverage.name y coverage.bedfilename()
+# FIXME no hace falta poner bamlist ni bedfile, está incluida esa info en coverage.name y coverage.bedfilename
     target_distribution_result = {}
     results = []
     histlist = []
