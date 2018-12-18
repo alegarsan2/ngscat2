@@ -102,8 +102,7 @@ class DepthDistrProcessor():
                  ('mean', mean[i]),
                  ('median', median[i]),
                  ('zerocov', float(zerocov[i])),
-                 ('status', 'OK' if mean[i] >= self.warnthreshold else 'Not OK')
-                 ('warnthreshold', self.warnthreshold)]
+                 ('status', 'OK' if mean[i] >= self.warnthreshold else 'Not OK')]
             ))
 
 

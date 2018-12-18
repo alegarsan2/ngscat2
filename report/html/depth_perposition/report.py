@@ -4,8 +4,11 @@ import numpy as np
 
 
 class Report():
-    def __init__(self, outdir):
-        self.outdir = outdir
+    def __init__(self, MainReporter):
+        MainReporter.addsections('distribution', self)
+        self.summary = {}
+        self.plot_dir = []
+
 
     def report(self, coveragefiles, npoints):
 
@@ -34,13 +37,13 @@ class Report():
                     pad=4
                 ),
             )
-
+            #TODO como obtengo el output dir desde el mainreporter
             fig = go.Figure(data=traces, layout=layout_comp)
-            plotly.offline.plot(fig, filename= self.outdir + chromosomeName + '_Ontarget_Coverage.html',
+            plotly.offline.plot(fig, filename= self.MainReporter.outdir + chromosomeName + '_Ontarget_Coverage.html',
                                 auto_open=True,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                             showLink=False))
-
+            self.plot_dir.append()
 
     def computeWindowSize(self, coverage, chromosomename, npoints):
         ''' Compute window size

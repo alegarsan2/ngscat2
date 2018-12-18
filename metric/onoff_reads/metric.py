@@ -121,10 +121,13 @@ class OnOffReadsProcessor():
                  ('perconduplicates', perconduplicates[i]),
                  ('percoffduplicates', percoffduplicates[i]),
                  ('onoff_status', 'OK' if onoff_status[i] else 'Not OK'),
-                 ('duplicates_status', 'OK' if duplicates_status[i] else 'Not OK')]))
+                 ('duplicates_status', 'OK' if duplicates_status[i] else 'Not OK'),
+                 ('warnthreshold', self.warnthreshold),
+                 ('maxduplicates', self.maxduplicates)]))
         read_on_results['results'] = results
         read_on_results['bedfile'] = beddir
         read_on_results['maxduplicates'] = self.maxduplicates
+
 
         callback(read_on_results)
 

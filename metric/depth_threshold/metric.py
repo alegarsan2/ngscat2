@@ -41,7 +41,9 @@ class DepthThresProcessor():
                  ('perctotalcovered', perc_total_covered[i]),
                  ('coveredposition', covered_position[i]),
                  ('perccoveredposition', perc_covered_position[i]),
-                 ('targetstatus', 'OK' if target_coverage_status[i] else 'Not OK')])
+                 ('targetstatus', 'OK' if target_coverage_status[i] else 'Not OK')
+                 ('coveragethreshold ', self.coveragethreshold),
+                 ('warnthreshold')])
             )
 
         callback(coveragefiles, results)

@@ -74,7 +74,10 @@ def main():
     # reporter = Report('/home/agarcia/PycharmProjects/ngscat/')
     # GcBiasProcessor().process([cover],'/home/agarcia/PycharmProjects/ngscat/hg19.fa', reporter.report)
 
-    # rootReporter = HtmlReporter('/home/agarcia/PycharmProjects/ngscat/')
+
+
+
+
     # rootReporter.output_path =
     # def rootReporter.output():
     #   generate Uniformity section
@@ -87,13 +90,14 @@ def main():
     # rootReporter.addSummaryInfo(key, value)
     # rootReporter.addSection(path)
 
-
-    # reporter = Report(rootReporter)
-    #   rootReporter.setDepthPositionReporter(self)
+    # mainReport = HtmlReport('/home/agarcia/PycharmProjects/ngscat/')
+    # reporter = SentitivityReport(mainReporter, ...)
     # reporter.process  = ...
     # self.rootReporter.addSection(sectionName, filename)
     # se.rootReporter.addSummaryInfo('Number reads', ...)
     # tras join, rootReporter.write
+
+
 
 
     reporter = Report('/home/agarcia/PycharmProjects/ngscat/')

@@ -2,15 +2,19 @@ import plotly.graph_objs as go
 import plotly
 import numpy as np
 class Report():
-    def __init__(self, outdir):
-        self.outdir = outdir
+    #FIXME como puedo acceder al outdir del  main report sin pasarle el mainreport al report como atributo o como entrada.
+    def __init__(self, MainReporter):
+        MainReporter.addsections('distribution', self)
+        #Aquí añadiremos las keys necesarias para generar el report
+        self.summary = {}
+        self.plot_dir_hist = MainReporter.outdir + 'target_hist.html'
+        self.plot_dir_boxplot= MainReporter.outdir + 'target_boxplot.html'
 
     def report(self, coveragefiles, target_distribution_results):
         self.target_distribution_histplot(coveragefiles, target_distribution_results)
         self.target_distribution_boxplot(coveragefiles, target_distribution_results)
 
-
-    def target_distribution_histplot(self, coveragefiles,target_distribution_results):
+    def target_distribution_histplot(self, coveragefiles, target_distribution_results):
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
         data = []
         for i, result in enumerate(target_distribution_results):
@@ -41,7 +45,7 @@ class Report():
         )
 
         fig = go.Figure(data=data, layout=layout_comp)
-        plotly.offline.plot(fig, filename= self.outdir + 'target_hist.html',
+        plotly.offline.plot(fig, filename= self.plot_dir_hist,
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
     def target_distribution_boxplot(self, coveragelist, target_distribution_result):
@@ -77,5 +81,5 @@ class Report():
             ),
         )
         fig = go.Figure(data=data, layout=layout_comp)
-        plotly.offline.plot(fig, filename=self.outdir + 'target_boxplot.html',
+        plotly.offline.plot(fig, filename=self.plot_dir_boxplot,
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
