@@ -3,16 +3,29 @@ import plotly
 import numpy as np
 class Report():
     #FIXME como puedo acceder al outdir del  main report sin pasarle el mainreport al report como atributo o como entrada.
-    def __init__(self, MainReporter):
-        MainReporter.addsections('distribution', self)
+    def __init__(self, mainreporter):
+
+        mainreporter.addsections('distribution', self)
         #Aquí añadiremos las keys necesarias para generar el report
         self.summary = {}
-        self.plot_dir_hist = MainReporter.outdir + 'target_hist.html'
-        self.plot_dir_boxplot= MainReporter.outdir + 'target_boxplot.html'
+        self.plot_dir_hist= mainreporter.outdir + '/data/coverage_histplot.html'
+        self.plot_dir_boxplot= mainreporter.outdir + '/data/target_boxplot.html'
 
     def report(self, coveragefiles, target_distribution_results):
         self.target_distribution_histplot(coveragefiles, target_distribution_results)
         self.target_distribution_boxplot(coveragefiles, target_distribution_results)
+
+        for i, result in enumerate(target_distribution_results):
+            self.summary['warnthreshold'].append(result['warntheshold'])
+            self.summary['status'].append(result['status'])
+            self.summary['mean'].append(result['mean'])
+
+    def summary(self):
+         #Attribute encapsulation
+        return self.summary
+
+
+
 
     def target_distribution_histplot(self, coveragefiles, target_distribution_results):
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']

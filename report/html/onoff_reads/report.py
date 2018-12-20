@@ -2,16 +2,27 @@ import plotly.graph_objs as go
 import plotly
 import numpy as np
 class Report():
-    def __init__(self, outdir):
-        self.outdir = outdir
-
+    def __init__(self, mainreporter):
+        mainreporter.addsection('onoff', self)
+        self.mainreporter = mainreporter
+        self.summary = {}
+        self.plot_dir_duplicates = []
     def report(self, read_on_results):
         self.on_target_plot(read_on_results)
         self.duplicates_plot(read_on_results)
 
+        for i, bam in enumerate(read_on_results['results']):
+            self.summary['percontotal'].append(bam['percontotal'])
+            self.summary['enrichment'].append(bam['enrichment'])
+            self.summary['onoffstatus'].append(bam['onoff_status'])
+            self.summary['duplicates_status'].append(bam['duplicates_status'])
+            self.summary['perconduplicates'].append(bam['perconduplicates'])
+            self.summary['percoffduplicates'].append(bam['percoffduplicates'])
+            self.summary['warnthreshold'] = bam['percontotal']
+        self.summary['maxduplicates'] = read_on_results['maxduplicates']
+
     def summary(self, read_on_results, key):
         return read_on_results[key]
-
     def on_target_plot(self, read_on_results):
         """*****************************************************************************************************************
             Task:ALEGARSAN this method is dependant on bam."reads_on_target".
@@ -44,6 +55,7 @@ class Report():
             ************************************************************************************************************"""
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
         data = []
+        layout_comp = []
         for i, bam in enumerate(read_on_results['results']):
             trace = go.Bar(
                 x=list(bam['perconperchr'].keys()),
@@ -57,25 +69,25 @@ class Report():
 
             data.append(trace)
 
-        layout_comp = go.Layout(
-            title='Reads on target',
-            hovermode='closest',
-            barmode='group',
-            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig'),
-            yaxis=dict(title='% on-target reads'),
-            shapes =[{
-                'type': 'line',
-                'x0': -0.5,
-                'y0': bam['percontotal'],
-                'x1': len(bam['perconperchr'])-0.5,
-                'y1': bam['percontotal'],
-                'line': {
-                    'color': 'rgb(50, 171, 96)',
-                    'width': 4,
-                    'dash': 'dot'}}])
+            layout_comp = go.Layout(
+                title='Reads on target',
+                hovermode='closest',
+                barmode='group',
+                xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig'),
+                yaxis=dict(title='% on-target reads'),
+                shapes =[{
+                    'type': 'line',
+                    'x0': -0.5,
+                    'y0': bam['percontotal'],
+                    'x1': len(bam['perconperchr'])-0.5,
+                    'y1': bam['percontotal'],
+                    'line': {
+                        'color': 'rgb(50, 171, 96)',
+                        'width': 4,
+                        'dash': 'dot'}}])
 
         fig = go.Figure(data=data, layout=layout_comp)
-        plotly.offline.plot(fig, filename=self.outdir + 'reads_on_target.html',
+        plotly.offline.plot(fig, filename=self.mainreporter.outdir + '/data/reads_on_target.html',
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
     def duplicates_plot(self, read_on_results):
@@ -134,6 +146,8 @@ class Report():
                 yaxis=dict(title='% of reads'))
 
             fig = go.Figure(data=data, layout=layout_comp)
-            plotly.offline.plot(fig, filename= self.outdir + 'duplicates_' + bam['legend'] + '.html',
+            plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/duplicates_' + bam['legend'] + '.html',
                                 auto_open=True,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+
+            self.plot_dir_duplicates.append(self.mainreporter.outdir + '/data/duplicates_' + bam['legend'] + '.html')

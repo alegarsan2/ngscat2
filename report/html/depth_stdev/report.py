@@ -1,12 +1,33 @@
-
+import plotly.graph_objs as go
+import plotly
+import numpy as np
 
 class Report():
-    def __init__(self, outdir):
-        self.outdir = outdir
+    def __init__(self, mainreporter):
+
+        mainreporter.addsections('stdev', self)
+        self.plot_dir_hist = mainreporter.outdir + '/data/std_histplot.html'
+        self.plot_dir_boxplot = mainreporter.outdir + '/data/std_boxplot.html'
+        self.summary = {}
 
     def report(self, stdlists, results):
         self.std_distr_box(stdlists, results)
         self.std_distr_hist(stdlists, results)
+
+        for i, result in enumerate(results):
+            # item = dict()
+            # item['status'] = result['status']
+            # item['mean'] = result['mean']
+            #
+            # self.summary[result['bamfilename']] = item
+
+            self.summary['status'].append(result['status'])
+            self.summary['mean'].append(result['mean'])
+        self.summary['warnthreshold'] = results['warnthreshold']
+
+    def summary(self):
+        # Attribute encapsulation
+        return self.summary
 
     def std_distr_hist(self, stdlists, results):
         # Plot His
@@ -48,11 +69,11 @@ class Report():
         )
 
         fig = go.Figure(data=traces, layout=layout_comp)
-        plotly.offline.plot(fig, filename=self.outdir + 'std_histogram.html',
+        plotly.offline.plot(fig, filename=self.plot_dir_hist,
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
 
-    def std_distr_box(self,stdlists):
+    def std_distr_box(self,stdlists, results):
         # Plot
         traces =[]
         for indx, stdlist in enumerate(stdlists):
@@ -82,7 +103,7 @@ class Report():
         )
 
         fig = go.Figure(data=traces, layout=layout_comp)
-        plotly.offline.plot(fig, filename= self.outdir + 'std_boxplot.html',
+        plotly.offline.plot(fig, filename= self.plot_dir_boxplot,
                             auto_open=True,
                             config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 

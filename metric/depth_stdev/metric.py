@@ -26,7 +26,7 @@ class StdevProcessor:
             result = self.calculate_result(coverage, iterator.stdlist, self.warnthreshold)
             region_stddistribution_result['results'].append(result)
 
-        callback(region_stddistribution_result, self.stdlist)
+        callback(self.stdlist, region_stddistribution_result)
 
     def calculate_results(self, coverage, stdlist, warnthreshold):
         histlist = []
@@ -68,4 +68,4 @@ class StdevProcessor:
                  ('min', float(minimum)),
                  ('mean', mean),
                  ('median', median),
-                 ('status', 'OK' if mean >= warnthreshold else 'Not OK')])
+                 ('status', 'ok' if mean >= warnthreshold else 'warning')])

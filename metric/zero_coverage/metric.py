@@ -30,5 +30,4 @@ class RegionsWithZeroesProcessor():
                     self.file.write("\t".join(map(str,[chromosome.name, initzero + region.start, idx + region.start]))+ "\n")
                 else:
                     self.file.write("\t".join(map(str,[chromosome.name, idx + region.start, idx + region.start]))+ "\n")
-    def close(self):
         self.file.close()

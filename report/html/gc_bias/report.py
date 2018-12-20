@@ -5,8 +5,13 @@ import scipy.stats as st
 
 
 class Report():
-    def __init__(self,outdir):
-        self.outdir = outdir
+    def __init__(self, MainReporter):
+
+        #FIXME hacer que los ficheros de salida tengan diferentes nombre, ya sea +0 +1
+        MainReporter.addsections('gc_bias', self)
+        self.outdir = MainReporter.outdir + '/data/gcbias_plot.html'
+        self.plot_dir = []
+
     def report(self, gclist, meanlists, coveragefiles):
         ymax = max(max(meanlist) for meanlist in meanlists)
         ymin = min(min(meanlist) for meanlist in meanlists)
@@ -22,10 +27,10 @@ class Report():
 
         for indx, meanlist in enumerate(meanlists):
             self.make_kdeplot(gclist,meanlist, xmin, xmax, ymin, ymax, 100,
-                              colorsc, title= coveragefiles[indx].name.decode('utf-8').split("/")[-1])
+                              colorsc, title= coveragefiles[indx].name.decode('utf-8').split("/")[-1],
+                              outdir= self.outdir + '/data/gcbias_plot'+ str(indx) +'.html')
 
-
-
+            self.plot_dir.append(self.outdir + '/data/gcbias_plot'+ str(indx) +'.html')
 
 
     def kde_scipy(self, vals1, vals2, a, b, c, d, N):
@@ -44,7 +49,7 @@ class Report():
 
         return [x, y, Z]
 
-    def make_kdeplot(self, varX, varY, a, b, c, d, N, colorsc, title):
+    def make_kdeplot(self, varX, varY, a, b, c, d, N, colorsc, title, outdir):
         # varX, varY are lists, 1d numpy.array(s), or dataframe columns, storing the values of two variables
 
         x, y, Z = self.kde_scipy(varY, varX, a, b, c, d, N)
@@ -58,16 +63,6 @@ class Report():
                 opacity=0.9,
                 contours= dict(showlines = False)
             )]
-
-        # trace = [go.Mesh3d(
-        #         z=Z,
-        #         x=x,
-        #         y=y,
-        #         #colorscale = colorsc,
-        #         # reversescale=True,
-        #         opacity=0.9,
-        #         #contours= dict(showlines = False)
-        #     )]
 
         layout_comp = go.Layout(
             title=title,
@@ -96,6 +91,6 @@ class Report():
         )
 
         fig = go.Figure(data=trace, layout=layout_comp)
-        plotly.offline.plot(fig, filename=self.outdir + 'gcbias_plot.html',
+        plotly.offline.plot(fig, filename= outdir,
                             auto_open=True,
                             config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))

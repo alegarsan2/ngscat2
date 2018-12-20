@@ -6,6 +6,8 @@ class DepthThresProcessor():
         self.coveragethreshold = coveragethreshold
         self.warnthreshold = warnthreshold
 
+
+
     def process(self, coveragefiles, callback):
         ntotal_positions = [0] * len(coveragefiles)
         covered_positions_per_depth = [[0 for x in range(len(self.coveragethreshold))] for y in range(len(coveragefiles))]
@@ -41,7 +43,7 @@ class DepthThresProcessor():
                  ('perctotalcovered', perc_total_covered[i]),
                  ('coveredposition', covered_position[i]),
                  ('perccoveredposition', perc_covered_position[i]),
-                 ('targetstatus', 'OK' if target_coverage_status[i] else 'Not OK')
+                 ('targetstatus', 'ok' if target_coverage_status[i] else 'warning'),
                  ('coveragethreshold ', self.coveragethreshold),
                  ('warnthreshold')])
             )

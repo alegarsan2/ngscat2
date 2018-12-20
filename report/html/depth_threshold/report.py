@@ -1,11 +1,21 @@
 import plotly.graph_objs as go
 import plotly
+
+
+
 class Report():
-    def __init__(self, outdir):
-        self.outdir = outdir
+    def __init__(self, MainReporter):
+        MainReporter.addsections('threshold', self)
+        self.plot_dir = MainReporter.outdir + '/data/covered_positions.html'
+        self.summary = {}
 
     def report(self, coveragefiles, results):
         self.target_coverage_plot(coveragefiles, results)
+        for i, result in enumerate(results):
+            self.summary['perctotalcovered'].append(result['perctotalcovered'])
+            self.summary['coveragethreshold'].append(result['coveragethreshold'])
+            self.summary['targetstatus'].append(result['targetstatus'])
+            self.summary['warnthreshold'] = result['warnthreshold']
 
 
     def target_coverage_plot(self, coveragefiles, target_coverage_results):

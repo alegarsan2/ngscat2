@@ -29,8 +29,6 @@ class OnOffReadsProcessor():
         read_on_results = {}
         global TMP
 
-
-
         # Calculate number of reads and duplicated reads on/off target per chromosome
         tread = []
         nread = []
@@ -120,8 +118,8 @@ class OnOffReadsProcessor():
                  ('offduplicates', offduplicatesresult[i]),
                  ('perconduplicates', perconduplicates[i]),
                  ('percoffduplicates', percoffduplicates[i]),
-                 ('onoff_status', 'OK' if onoff_status[i] else 'Not OK'),
-                 ('duplicates_status', 'OK' if duplicates_status[i] else 'Not OK'),
+                 ('onoff_status', 'ok' if onoff_status[i] else 'warning'),
+                 ('duplicates_status', 'ok' if duplicates_status[i] else 'warning'),
                  ('warnthreshold', self.warnthreshold),
                  ('maxduplicates', self.maxduplicates)]))
         read_on_results['results'] = results

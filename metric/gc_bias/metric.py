@@ -1,6 +1,7 @@
 import array
 import re
 import Bio
+
 class GcBiasProcessor():
     def __init__(self):
         self.meanlist = []

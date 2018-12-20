@@ -147,7 +147,7 @@ class bam_file(pysam.Samfile):
         sortedBAMfilename = TMP + pid + os.path.basename(self.filename.decode('utf-8')) + ".sorted"+ '.bam'
         print(sortedBAMfilename)
         #		self.run('samtools sort '+self.filename+' '+sortedBAMfilename)
-        pysam.sort("-o", sortedBAMfilename, self.filename)
+        pysam.sort("-o", sortedBAMfilename, self.filename.decode('utf-8'))
 
         pysam.index(sortedBAMfilename)
 

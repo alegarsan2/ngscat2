@@ -7,49 +7,6 @@ class DepthDistrProcessor():
         self.results = []
 
     def process(self, coveragefiles, callback):
-
-        #FIXME poner de warnthreshold 40 por defecto
-        # ntotal_positions = [0] * len(coveragefiles)
-        # covered_positions_per_depth = [[0 for x in range(len(coveragethreshold))] for y in range(len(coveragefiles))]
-        # covered_position = []  # list containing dictionary number of position with more depth than threshold
-        # perc_covered_position = []  # percentage of covered position
-        # perc_total_covered = []
-        # results = []
-        # target_coverage_status = []
-        # # calculation of number of bed position and different coverages within thresholds
-        # for i, coveragefile in enumerate(coveragefiles):
-        #     ntotal = 0
-        #
-        #     for current_coverage in coveragefile.coverages:
-        #         ntotal = ntotal + 1
-        #         for j, cov in enumerate(coveragethreshold):
-        #             if current_coverage >= cov:
-        #                 covered_positions_per_depth[i][j] += 1
-        #     ntotal_positions[i] = ntotal
-        #
-        #     covered_position.append(
-        #         {'>=' + str(cov) + 'x': covered_positions_per_depth[i][indx] for indx, cov in
-        #          enumerate(coveragethreshold)})
-        #     perc_covered_position.append(
-        #         {key: (value * 100 / ntotal_positions[i]) for key, value in covered_position[i].items()})
-        #     perc_total_covered.append(perc_covered_position[i]['>=1x'])
-        #     target_coverage_status.append(True if perc_total_covered[i] >= warnthreshold else False)
-        #
-        # for i in range(len(coveragefiles)):
-        #     results.append(dict(
-        #         [('bamfilename', coveragefiles[i].name.decode('utf-8').split("/")[-1]),
-        #          ('ntotalposition', ntotal_positions[i]),
-        #          ('perctotalcovered', perc_total_covered[i]),
-        #          ('coveredposition', covered_position[i]),
-        #          ('perccoveredposition', perc_covered_position[i]),
-        #          ('targetstatus', 'OK' if target_coverage_status[i] else 'Not OK')])
-        #     )
-        # a = print()
-        # callback(coveragefiles, results)
-
-
-
-# FIXME no hace falta poner bamlist ni bedfile, está incluida esa info en coverage.name y coverage.bedfilename
         results = []
         histlist = []
         percentile = []
@@ -58,8 +15,6 @@ class DepthDistrProcessor():
         mean = []
         median= []
         zerocov = []
-
-
 
         for i, coveragefile in enumerate(coveragefiles):
 
@@ -90,21 +45,22 @@ class DepthDistrProcessor():
             minimum.append(np.min(coveragefile.coverages))
             mean.append(coveragefile.coverages.mean())
             zerocov.append(len(coveragefile.coverages) - len(indnonzero))
-            #TODO ver que parametros metemos en el JSON
-        for i in range(len(coveragefile)):
-            results.append(dict(
-                [('bamfilename', coveragefiles[i].filename.decode('utf-8')),
-                 ('legend', (coveragefiles[i].decode('utf-8').split('/')[-1])),
-                 ('histdata', histlist[i]),
-                 ('percentile', percentile[i]),
-                 ('max', float(maximum[i])),
-                 ('min', float(minimum[i])),
-                 ('mean', mean[i]),
-                 ('median', median[i]),
-                 ('zerocov', float(zerocov[i])),
-                 ('status', 'OK' if mean[i] >= self.warnthreshold else 'Not OK')
-                 ('warnthreshold', self.warnthreshold)]
-            ))
+
+
+            for i in range(len(coveragefile)):
+                results.append(dict(
+                    [('bamfilename', coveragefiles[i].filename.decode('utf-8')),
+                     ('legend', (coveragefiles[i].decode('utf-8').split('/')[-1])),
+                     ('histdata', histlist[i]),
+                     ('percentile', percentile[i]),
+                     ('max', float(maximum[i])),
+                     ('min', float(minimum[i])),
+                     ('mean', mean[i]),
+                     ('median', median[i]),
+                     ('zerocov', float(zerocov[i])),
+                     ('status', 'ok' if mean[i] >= self.warnthreshold else 'warning'),
+                     ('warnthreshold', self.warnthreshold)]
+                ))
 
 
         callback(coveragefiles, results)
