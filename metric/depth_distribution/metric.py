@@ -1,7 +1,7 @@
 import numpy as np
 
 class DepthDistrProcessor():
-    def __init__(self,bins, warnthreshold=40):
+    def __init__(self, bins = 40, warnthreshold=40):
         self.bins = bins
         self.warnthreshold = warnthreshold
         self.results = []

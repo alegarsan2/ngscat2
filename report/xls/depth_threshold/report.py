@@ -39,5 +39,5 @@ class Report():
                 ws.write(5, 1 + j, result['coveredposition'][depth])
                 ws.write(6, 1 + j, result['perccoveredposition'][depth])
 
-        wb.save(self.outdir + '/coverage_summary.xls')
+        wb.save(self.outdir + '/data/coverage_summary.xls')
 

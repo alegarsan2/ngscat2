@@ -119,4 +119,4 @@ class Report():
             ws.write(4, maxduplicates + 1, bam['onread'])
             ws.write(5, maxduplicates + 1, bam['totalread'] - bam['onread'])
 
-        wb.save(self.outdir + 'duplicates.xls')
+        wb.save(self.outdir + '/data/duplicates.xls')

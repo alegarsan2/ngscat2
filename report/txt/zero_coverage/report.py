@@ -1,5 +1,5 @@
-from metric.zero_coverage.metric import RegionsWithZeroesProcessor
 
+from metric.zero_coverage.metric import RegionsWithZeroesProcessor
 class Report():
     def __init__(self, outdir):
         self.outdir = outdir

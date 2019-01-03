@@ -8,10 +8,10 @@ IMGSRC = os.path.dirname(sys.argv[0])+'/img/'
 #TMP = /tmp/
 
 class HtmlReport:
-    def __init__(self, outdir, param):
+    def __init__(self, outdir, options):
         self.outdir = outdir
         self.sections = {}
-        self.param = param
+        self.options = options
     def addsection(self, name, reporter):
         self.sections[name] = reporter
 
@@ -21,7 +21,7 @@ class HtmlReport:
         shutil.copy(IMGSRC + '/ok.jpg', self.outdir + '/img')
         shutil.copy(IMGSRC + '/warning.jpg', self.outdir + '/img')
         shutil.copy(IMGSRC + '/coverage_histogram_example.png', self.outdir + '/img')
-        shutil.copy(DATASRC +'/styles.css', self.outdir)
+        shutil.copy(DATASRC + '/styles.css', self.outdir)
 
 
         #Opening the data html template in order to write the data

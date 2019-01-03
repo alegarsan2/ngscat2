@@ -15,18 +15,19 @@ class StdevIterProcessor():
 class StdevProcessor:
     def __init__(self, warnthreshold= 0.3):
         self.warnthreshold = warnthreshold
-
+        self.stdlists = []
     def process(self, coveragefiles, callback):
         region_stddistribution_result = {}
         region_stddistribution_result['warnthreshold'] = self.warnthreshold
         region_stddistribution_result['results'] = []
         for coverage in coveragefiles:
-            iterator = StdevIterProcessor(coverage)
+            iterator = StdevIterProcessor()
             coverage.iterateOverRegions(iterator.process)
-            result = self.calculate_result(coverage, iterator.stdlist, self.warnthreshold)
+            self.stdlists.append(iterator.stdlist)
+            result = self.calculate_results(coverage, iterator.stdlist, self.warnthreshold)
             region_stddistribution_result['results'].append(result)
 
-        callback(self.stdlist, region_stddistribution_result)
+        callback(self.stdlists, region_stddistribution_result)
 
     def calculate_results(self, coverage, stdlist, warnthreshold):
         histlist = []

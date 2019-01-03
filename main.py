@@ -1,10 +1,43 @@
 import optparse
 import sys
 import os
+import glob
 
 from multiprocessing import Manager
 from multiprocessing import Pool
 from multiprocessing import cpu_count
+
+from bam_file import bam_file
+
+from report.html.HtmlReport import HtmlReport
+
+from metric.onoff_reads.metric import OnOffReadsProcessor
+from report.html.onoff_reads.report import Report as OnOffHtml
+from report.xls.onoff_reads.report import Report as OnOffXls
+from report.json.onoff_reads.report import Report as OnOffJson
+
+
+from metric.depth_threshold.metric import DepthThresProcessor
+from report.html.depth_threshold.report import Report as ThresholdHtml
+from report.json.depth_threshold.report import Report as ThresholdJson
+from report.xls.depth_threshold.report import Report as ThresholdXls
+
+
+from metric.depth_distribution.metric import DepthDistrProcessor
+from report.html.depth_distribution.report import Report as DistributionHtml
+from report.json.depth_distribution.report import Report as DistributionJson
+from report.xls.depth_distribution.report import Report as DistributionXls
+
+from metric.depth_perposition.metric import DepthPerPositionProcessor
+from report.html.depth_perposition.report import Report as PerpositionHtml
+
+from metric.depth_stdev.metric import StdevProcessor
+from report.html.depth_stdev.report import Report as StdHtml
+from report.xls.depth_stdev.report import Report as StdXls
+from report.json.depth_stdev.report import Report as StdJson
+
+from metric.zero_coverage.metric import RegionsWithZeroesProcessor
+from report.txt.zero_coverage.report import Report as ZeroCoverageTxt
 
 
 def parse_arguments():
@@ -44,8 +77,17 @@ def parse_arguments():
                       default='/tmp/')
     parser.add_option("--threads", dest="nthreads",
                       help="""Optional. Integer indicating the number of concurrent threads to launch. Default=2.""",
-                      default=2)
-    return args, None
+                      default= cpu_count() - 1)
+    #This is used in we want to return an arguments dictionary instead parser object
+    #option_dict = {}
+    #option_dict = vars(options)
+
+    (options, args) = parser.parse_args()
+
+
+
+
+    return (options, args)
 
 
 def check_parameters(options, parser):
@@ -167,7 +209,7 @@ def check_parameters(options, parser):
 
     return True
 
-def generate_report(args):
+def generate_report(options):
 
     # crear el pool, con nº hilos core-1
     # generar coverfile
@@ -177,36 +219,104 @@ def generate_report(args):
     # lanzar todas las métricas
     # esperar a que acabe todo
     # generar informe final
-#Creating Space of data to share between threads
 
-mgr = Manager()
-ns = mgr.Namespace()
+    #Creating Space of data to share between threads
+
+    mgr = Manager()
+    ns = mgr.Namespace()
+    ns.coveragefiles = []
+
+    #Bamfile object generation, if not sorted do it and(sequentally made, maybe no improvement due I/O limitations)
+    #Sorted and .bai Checking
+    bamlist = []
+    for bamdir in options.bams.split(','):
+        bam = bam_file(bamdir)
+        if not bam.issorted():
+            bamsorted = bam.sort_bam()
+        else:
+            bamsorted = bam
+        bamlist.append(bamsorted)
+
+    #Generating coverage_file objects from bamlist
+    #TODO arreglar bedgraphs
+    coveragefiles = []
+    for bam in bamlist:
+        cover = bam.myCoverageBed(options.bed)
+        ns.coveragefiles.append(cover)
 
 
-#Bamfile object generation, if not sorted do it and
-ns.covlist = coveragefiles
-
-nthreads = if nthreads in ['nthreads'] is not None else cpu_count() - 1
-
-#Maximum number of workers
-mainpool = Pool(processes= cpu_count() - 1)
+    #Creating the pool and designating number of workers
+    mainpool = Pool(processes= options.nthreads)
 
 
-# reporter =
-mainpool.apply_async(OnOffReadsProcessor().process, args=(ns.covlist,'/home/agarcia/PycharmProjects/ngscat/talidomida_v2_primary_targets.bed'), callback = reporter.report)
+    #Main reporter generator
+    mainReporter = HtmlReport(options.outdir, options)
+    #Metric reporter generator, main reporter will be passed as an argument
+
+
+    #Sensitivity: Depth_Threshold
+
+    thresholdhtml = ThresholdHtml(mainReporter).report
+    thresholdjson = ThresholdJson(options.outdir).report
+    thresholdxls = ThresholdXls(options.outdir).report
+
+    thresholdreporter = CompoundReporter([thresholdhtml,thresholdjson,thresholdxls])
+
+    mainpool.apply_async(DepthThresProcessor().process, args=(ns.coveragefiles, thresholdreporter.report))
+
+    # Sensitivity:(Optional) Saturation
 
 
 
 
 
+    #Specificity: OnOffReport
+    onoffhtml = OnOffHtml(mainReporter).report
+    onoffjson = OnOffJson(options.outdir).report
+    onoffxls = OnOffXls(options.outdir).report
 
+    onoffreporter = CompoundReporter([onoffhtml,onoffjson,onoffxls])
+    mainpool.apply_async(OnOffReadsProcessor().process, args=(bamlist, options.bed, onoffreporter.report))
+
+
+
+    #Uniformity: Depth_distribution Coverage Distribution
+    distributionhtml = DistributionHtml(mainReporter).report
+    distributionjson = DistributionJson(options.outdir).report
+    distributionxls = DistributionXls(options.outdir).report
+
+    distributionreporter = CompoundReporter([distributionhtml, distributionjson, distributionxls])
+    mainpool.apply_async(DepthDistrProcessor().process, args=(ns.coveragefiles, distributionreporter.report))
+
+    #Uniformity: depth_perposition Coverage_per_position
+    perpositionreporter = PerpositionHtml(mainReporter).report
+    mainpool.apply_async(DepthPerPositionProcessor().process, args=(ns.coveragefiles, perpositionreporter))
+
+    #Uniformity: Standart deviation within regions
+    stdevhtml = StdHtml(mainReporter).report
+    stdevjson = StdJson(options.outdir).report
+    stdevxls = StdXls(options.outdir).report
+
+    stdevreporter = CompoundReporter([stdevhtml,stdevjson,stdevxls])
+    mainpool.apply_async(StdevProcessor().process, args=(ns.coveragefiles, stdevreporter.report))
+
+    #Uniformity: Nocoverage txt
+    zerocoveragereporter = ZeroCoverageTxt(options.outdir).report
+    mainpool.apply_async(RegionsWithZeroesProcessor())
+
+
+
+    #Uniformity(optional) GC Bias reference required
+
+
+#Class wrapper of different kinds of results for instance (onoffplots, onoffjson, onoffxls)
 class CompoundReporter:
     def __init__(self, reporters):
         self.reporters = reporters
 
     def report(self, *args):
-        for processor in self.reporters:
-            processor(*args)
+        for report in self.reporters:
+            report(*args)
 
 htmlReport = HtmlReport(...)
 jsonReport = JsonReport(...)
@@ -236,12 +346,6 @@ htmlReport.output()
 jsonReport.output()
 
 
-
-
-
-
-
-
 def generate_report(args):
 
     # crear el pool, con nº hilos core-1
@@ -252,10 +356,6 @@ def generate_report(args):
     # lanzar todas las métricas
     # esperar a que acabe todo
     # generar informe final
-
-
-
-
 
 
 

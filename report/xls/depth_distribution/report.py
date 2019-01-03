@@ -47,5 +47,5 @@ class Report():
             ws.write(6, 6, result['median'])
             ws.write(6, 7, result['mean'])
 
-        wb.save(self.outdir + '/percentile.xls')
+        wb.save(self.outdir + '/data/percentile.xls')
 
