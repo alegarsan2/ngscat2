@@ -25,7 +25,7 @@ class Report():
             # ws.write(1, 1, read_on_results['bedfile'])
 
             ws.write(2, 0, 'Outdir:', header_style)
-            ws.write(2, 1,self.outdir)
+            ws.write(2, 1, self.outdir)
 
             ws.write(4, 0, 'Table', header_style)
 

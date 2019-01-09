@@ -5,7 +5,7 @@ import numpy as np
 class Report():
     def __init__(self, mainreporter):
 
-        mainreporter.addsections('stdev', self)
+        mainreporter.addsection('stdev', self)
         self.plot_dir_hist = mainreporter.outdir + '/data/std_histplot.html'
         self.plot_dir_boxplot = mainreporter.outdir + '/data/std_boxplot.html'
         self.summary = {}
@@ -14,15 +14,24 @@ class Report():
         self.std_distr_box(stdlists, results)
         self.std_distr_hist(stdlists, results)
 
-        for i, result in enumerate(results):
+
+        status = []
+        mean = []
+        warnthreshold = []
+
+        for i, result in enumerate(results['results']):
             # item = dict()
             # item['status'] = result['status']
             # item['mean'] = result['mean']
             #
             # self.summary[result['bamfilename']] = item
 
-            self.summary['status'].append(result['status'])
-            self.summary['mean'].append(result['mean'])
+            status.append(result['status'])
+            mean.append(result['mean'])
+
+
+        self.summary['status']= status
+        self.summary['mean'] = mean
         self.summary['warnthreshold'] = results['warnthreshold']
 
     def summary(self):
@@ -32,7 +41,7 @@ class Report():
     def std_distr_hist(self, stdlists, results):
         # Plot His
         traces = []
-        print(len(results['results']))
+
         for indx, stdlist in enumerate(stdlists):
             trace = go.Histogram(
                 x=stdlist,
@@ -43,7 +52,7 @@ class Report():
                 # for i, value in enumerate(results['histdata']['numberstd'])],
                 # mode='lines',
                 opacity=0.7,
-                name=results['results'][indx]['bamfilename'],
+                name=results['results'][indx]['bamfilename'].split('/')[-1],
                 marker=dict(
                     line=dict(
                         color='rgb(0,0,0)',
@@ -81,7 +90,7 @@ class Report():
                 # Random subsampling in order to represent fasther the data. Final size 100000 points
                 y=np.random.choice(stdlist, size=int(len(stdlist) / ((len(stdlist) // 100000) if
                                                                               len(stdlist) > 100000 else 1))),
-                name=results['results'][indx]['bamfilename'],
+                name=results['results'][indx]['bamfilename'].split('/')[-1],
                 boxpoints='suspectedoutliers',
                 jitter=0.01)
             traces.append(trace)

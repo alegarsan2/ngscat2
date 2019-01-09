@@ -47,10 +47,10 @@ class DepthDistrProcessor():
             zerocov.append(len(coveragefile.coverages) - len(indnonzero))
 
 
-            for i in range(len(coveragefile)):
+            for i in range(len(coveragefiles)):
                 results.append(dict(
-                    [('bamfilename', coveragefiles[i].filename.decode('utf-8')),
-                     ('legend', (coveragefiles[i].decode('utf-8').split('/')[-1])),
+                    [('bamfilename', coveragefiles[i].name.decode('utf-8')),
+                     ('legend', (coveragefiles[i].name.decode('utf-8').split('/')[-1])),
                      ('histdata', histlist[i]),
                      ('percentile', percentile[i]),
                      ('max', float(maximum[i])),

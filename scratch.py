@@ -29,8 +29,8 @@ from report import target_coverage_report
 
 
 from metric.onoff_reads.metric import OnOffReadsProcessor
-from report.xls.onoff_reads.report import Report
-
+#from report.xls.onoff_reads.report import Report
+from report.html.onoff_reads.report import Report
 
 def main():
 
@@ -98,9 +98,10 @@ def main():
     # tras join, rootReporter.write
 
 
+    from report.html.HtmlReport import HtmlReport
 
-
-    reporter = Report('/home/agarcia/PycharmProjects/ngscat/')
+    mainreporter = HtmlReport('/home/agarcia/PycharmProjects/ngscat/')
+    reporter = Report(mainreporter,options)
     OnOffReadsProcessor().process([bam],'/home/agarcia/PycharmProjects/ngscat/talidomida_v2_primary_targets.bed', reporter.report)
 
 

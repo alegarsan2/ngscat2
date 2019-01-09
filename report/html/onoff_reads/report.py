@@ -10,19 +10,36 @@ class Report():
     def report(self, read_on_results):
         self.on_target_plot(read_on_results)
         self.duplicates_plot(read_on_results)
+        percontotal = []
+        enrichment = []
+        onoffstatus = []
+        duplicates_status = []
+        perconduplicates = []
+        percoffduplicates = []
+        warnthreshold = []
+        maxduplicates = []
+
 
         for i, bam in enumerate(read_on_results['results']):
-            self.summary['percontotal'].append(bam['percontotal'])
-            self.summary['enrichment'].append(bam['enrichment'])
-            self.summary['onoffstatus'].append(bam['onoff_status'])
-            self.summary['duplicates_status'].append(bam['duplicates_status'])
-            self.summary['perconduplicates'].append(bam['perconduplicates'])
-            self.summary['percoffduplicates'].append(bam['percoffduplicates'])
-            self.summary['warnthreshold'] = bam['percontotal']
+            percontotal.append(bam['percontotal'])
+            enrichment.append(bam['enrichment'])
+            onoffstatus.append(bam['onoff_status'])
+            duplicates_status.append(bam['duplicates_status'])
+            perconduplicates.append(bam['perconduplicates'])
+            percoffduplicates.append(bam['percoffduplicates'])
+
+        self.summary['percontotal'] = percontotal
+        self.summary['enrichment']= enrichment
+        self.summary['onoffstatus'] = onoffstatus
+        self.summary['duplicates_status']= duplicates_status
+        self.summary['perconduplicates'] = perconduplicates
+        self.summary['percoffduplicates'] = percoffduplicates
+        self.summary['warnthreshold'] = read_on_results['results'][0]['warnthreshold']
         self.summary['maxduplicates'] = read_on_results['maxduplicates']
 
     def summary(self, read_on_results, key):
         return read_on_results[key]
+
     def on_target_plot(self, read_on_results):
         """*****************************************************************************************************************
             Task:ALEGARSAN this method is dependant on bam."reads_on_target".
@@ -55,7 +72,7 @@ class Report():
             ************************************************************************************************************"""
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
         data = []
-        layout_comp = []
+        #layout_comp = []
         for i, bam in enumerate(read_on_results['results']):
             trace = go.Bar(
                 x=list(bam['perconperchr'].keys()),
@@ -69,24 +86,26 @@ class Report():
 
             data.append(trace)
 
-            layout_comp = go.Layout(
-                title='Reads on target',
-                hovermode='closest',
-                barmode='group',
-                xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig'),
-                yaxis=dict(title='% on-target reads'),
-                shapes =[{
-                    'type': 'line',
-                    'x0': -0.5,
-                    'y0': bam['percontotal'],
-                    'x1': len(bam['perconperchr'])-0.5,
-                    'y1': bam['percontotal'],
-                    'line': {
-                        'color': 'rgb(50, 171, 96)',
-                        'width': 4,
-                        'dash': 'dot'}}])
+        layout_comp = go.Layout(
+            title='Reads on target',
+            hovermode='closest',
+            barmode='group',
+            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig'),
+            yaxis=dict(title='% on-target reads'),
+            # shapes ={
+            #     'type': 'line',
+            #     'x0': -0.5,
+            #     'y0': read_on_results['results'][0]['percontotal'],
+            #     'x1': len(bam['perconperchr'])-0.5,
+            #     'y1': bam['percontotal'],
+            #     'line': {
+            #         'color': 'rgb(50, 171, 96)',
+            #         'width': 4,
+            #         'dash': 'dot'}}
+        )
 
-        fig = go.Figure(data=data, layout=layout_comp)
+        fig = go.Figure(data=data,layout=layout_comp)
+                        # layout=layout_comp)
         plotly.offline.plot(fig, filename=self.mainreporter.outdir + '/data/reads_on_target.html',
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
@@ -150,4 +169,4 @@ class Report():
                                 auto_open=True,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
-            self.plot_dir_duplicates.append(self.mainreporter.outdir + '/data/duplicates_' + bam['legend'] + '.html')
+            self.plot_dir_duplicates.append(self.mainreporter.outdir + 'data/duplicates_' + bam['legend'] + '.html')

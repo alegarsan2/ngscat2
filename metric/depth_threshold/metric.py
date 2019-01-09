@@ -1,7 +1,7 @@
 
 
 class DepthThresProcessor():
-    def __init__(self, coveragethreshold, warnthreshold):
+    def __init__(self, coveragethreshold = (1, 5, 10, 20, 30), warnthreshold = 6):
         self.results = []
         self.coveragethreshold = coveragethreshold
         self.warnthreshold = warnthreshold
@@ -44,8 +44,8 @@ class DepthThresProcessor():
                  ('coveredposition', covered_position[i]),
                  ('perccoveredposition', perc_covered_position[i]),
                  ('targetstatus', 'ok' if target_coverage_status[i] else 'warning'),
-                 ('coveragethreshold ', self.coveragethreshold),
-                 ('warnthreshold')])
+                 ('coveragethreshold', self.coveragethreshold),
+                 ('warnthreshold', self.warnthreshold)])
             )
 
         callback(coveragefiles, results)

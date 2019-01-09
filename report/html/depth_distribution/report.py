@@ -5,7 +5,7 @@ class Report():
     #FIXME como puedo acceder al outdir del  main report sin pasarle el mainreport al report como atributo o como entrada.
     def __init__(self, mainreporter):
 
-        mainreporter.addsections('distribution', self)
+        mainreporter.addsection('distribution', self)
         #Aquí añadiremos las keys necesarias para generar el report
         self.summary = {}
         self.plot_dir_hist= mainreporter.outdir + '/data/coverage_histplot.html'
@@ -15,10 +15,18 @@ class Report():
         self.target_distribution_histplot(coveragefiles, target_distribution_results)
         self.target_distribution_boxplot(coveragefiles, target_distribution_results)
 
+        warnthreshold = []
+        status = []
+        mean = []
+
         for i, result in enumerate(target_distribution_results):
-            self.summary['warnthreshold'].append(result['warntheshold'])
-            self.summary['status'].append(result['status'])
-            self.summary['mean'].append(result['mean'])
+            warnthreshold.append(result['warnthreshold'])
+            status.append(result['status'])
+            mean.append(result['mean'])
+
+        self.summary['warnthreshold'] = warnthreshold
+        self.summary['status'] = status
+        self.summary['mean'] = mean
 
     def summary(self):
          #Attribute encapsulation
@@ -41,7 +49,7 @@ class Report():
                       for i, value in enumerate(result['histdata']['numberread'])],
                 # mode='lines',
                 opacity=0.7,
-                name=coveragefiles[i].name.decode('utf-8').split('/t')[-1],
+                name=coveragefiles[i].name.decode('utf-8').split('/')[-1],
                 marker=dict(color=colors[i],
                             line=dict(
                                 color='rgb(0,0,0)',
@@ -70,7 +78,7 @@ class Report():
                 y= np.random.choice(coveragefile.coverages,
                 size=int(len(coveragefile.coverages) / ((len(coveragefile.coverages) // 100000)
                             if len(coveragefile.coverages) > 100000 else 1))),
-                name= coveragefile.name.decode('utf-8').split('/t')[-1],
+                name= coveragefile.name.decode('utf-8').split('/')[-1],
                 marker=dict(
                     color=colors[i],
                 ),

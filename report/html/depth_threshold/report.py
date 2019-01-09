@@ -5,17 +5,26 @@ import plotly
 
 class Report():
     def __init__(self, MainReporter):
-        MainReporter.addsections('threshold', self)
+        MainReporter.addsection('threshold', self)
         self.plot_dir = MainReporter.outdir + '/data/covered_positions.html'
         self.summary = {}
 
     def report(self, coveragefiles, results):
         self.target_coverage_plot(coveragefiles, results)
+        perctotalcovered = []
+        coveragethreshold = []
+        targetstatus = []
+        warnthreshold = []
         for i, result in enumerate(results):
-            self.summary['perctotalcovered'].append(result['perctotalcovered'])
-            self.summary['coveragethreshold'].append(result['coveragethreshold'])
-            self.summary['targetstatus'].append(result['targetstatus'])
-            self.summary['warnthreshold'] = result['warnthreshold']
+            perctotalcovered.append(result['perctotalcovered'])
+            coveragethreshold.append((result['coveragethreshold']))
+            targetstatus.append(result['targetstatus'])
+            warnthreshold.append(result['warnthreshold'])
+
+        self.summary['perctotalcovered'] = perctotalcovered
+        self.summary['coveragethreshold'] = coveragethreshold
+        self.summary['targetstatus'] = targetstatus
+        self.summary['warnthreshold'] = warnthreshold
 
 
     def target_coverage_plot(self, coveragefiles, target_coverage_results):
@@ -54,6 +63,6 @@ class Report():
         )
 
         fig = go.Figure(data=data, layout=layout_comp)
-        plotly.offline.plot(fig, filename=self.outdir + 'covered_positions.html',
+        plotly.offline.plot(fig, filename=self.plot_dir,
                             auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 

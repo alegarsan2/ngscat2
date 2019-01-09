@@ -1,14 +1,18 @@
 import gc
 import numpy as np
 import bed_file
+# due to pysam implementation and restrictions, we should make this
+# global so we can share the memory by forking
+gBamList = []
 class OnOffReadsProcessor():
-    def __init__(self, maxduplicates = 5, warnthreshold = 80):
-        self.resutls = []
+    def __init__(self, bamlist, maxduplicates = 5, warnthreshold = 80):
+        global gBamlist
+        self.results = []
         self.maxduplicates = maxduplicates
         self.warnthreshold = warnthreshold
-
-
-    def process(self, bamlist, beddir, callback):
+        self.gBamlist = bamlist
+        print('A')
+    def process(self, beddir, callback):
 
         """************************************************************************************************************************************************************
         Task: Print reads on traget and off target
@@ -27,7 +31,7 @@ class OnOffReadsProcessor():
         Outputs: dictionary and json with information and bam results in the key 'results'
         ************************************************************************************************************************************************************"""
         read_on_results = {}
-        global TMP
+        # global TMP
 
         # Calculate number of reads and duplicated reads on/off target per chromosome
         tread = []
@@ -42,6 +46,8 @@ class OnOffReadsProcessor():
         percoffduplicates = []
         enrichment = []
 
+        bamlist = self.gBamlist
+        print('A')
         #Adding data
         for bam in bamlist:
             nread_tmp, onperchr_tmp, totalperchr_tmp, onduplicates_tmp, offduplicates_tmp = bam.myReadsOnTarget(beddir)

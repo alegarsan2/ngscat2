@@ -3,6 +3,8 @@ import string
 import time
 import sys
 import os
+import glob
+
 DATASRC = os.path.dirname(sys.argv[0])+'/html/'
 IMGSRC = os.path.dirname(sys.argv[0])+'/img/'
 #TMP = /tmp/
@@ -16,17 +18,17 @@ class HtmlReport:
         self.sections[name] = reporter
 
     def report(self):
-        shutil.copy(IMGSRC + '/xls_icon.png', self.outdir + '/img')
-        shutil.copy(IMGSRC + '/txt_icon.png', self.outdir + '/img')
-        shutil.copy(IMGSRC + '/ok.jpg', self.outdir + '/img')
-        shutil.copy(IMGSRC + '/warning.jpg', self.outdir + '/img')
-        shutil.copy(IMGSRC + '/coverage_histogram_example.png', self.outdir + '/img')
-        shutil.copy(DATASRC + '/styles.css', self.outdir)
+        shutil.copy(IMGSRC + 'xls_icon.png', self.outdir + '/img')
+        shutil.copy(IMGSRC + 'txt_icon.png', self.outdir + '/img')
+        shutil.copy(IMGSRC + 'ok.jpg', self.outdir + '/img')
+        shutil.copy(IMGSRC + 'warning.jpg', self.outdir + '/img')
+        shutil.copy(IMGSRC + 'coverage_histogram_example.png', self.outdir + '/img')
+        shutil.copy(DATASRC + 'styles.css', self.outdir)
 
 
         #Opening the data html template in order to write the data
 
-        fd = open(DATASRC + '/captureQC.html')
+        fd = open(DATASRC + 'captureQC.html')
 
 
         #esta parte iría en el main
@@ -42,9 +44,9 @@ class HtmlReport:
         # Substitulle patrones clave que corresponda
 
 
-        # chromosomeimages = ''
-        # ontarget_coverage_files = glob.glob(outdir + '/data/*_Ontarget_Coverage.png')
-        # ontarget_coverage_files.sort()
+        chromosomeimages = ''
+        ontarget_coverage_files = glob.glob(self.outdir + '/data/*_Ontarget_Coverage.png')
+        ontarget_coverage_files.sort()
 
 
 

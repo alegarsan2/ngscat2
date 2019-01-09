@@ -814,7 +814,7 @@ class bam_file(pysam.Samfile):
         duplicatesOnTarget = []  # Contains reads that appear once, two times, three times...on target
         duplicatesOffTarget = []  # Contains reads that appear once, two times, three times...off target
 
-        for currentRead in self:
+        for currentRead in self.fetch():
             # Get chromosome info from currentRead
             try:
                 currentChromosome = self.getrname(currentRead.tid)
