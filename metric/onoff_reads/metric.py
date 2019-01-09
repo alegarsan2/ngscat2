@@ -10,7 +10,7 @@ class OnOffReadsProcessor():
         self.results = []
         self.maxduplicates = maxduplicates
         self.warnthreshold = warnthreshold
-        self.gBamlist = bamlist
+        gBamlist = bamlist
         print('A')
     def process(self, beddir, callback):
 
@@ -46,7 +46,7 @@ class OnOffReadsProcessor():
         percoffduplicates = []
         enrichment = []
 
-        bamlist = self.gBamlist
+        bamlist = gBamlist
         print('A')
         #Adding data
         for bam in bamlist:
