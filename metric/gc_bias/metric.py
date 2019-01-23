@@ -1,6 +1,4 @@
-import array
 import re
-import Bio
 
 class GcBiasProcessor():
     def __init__(self):
@@ -10,8 +8,8 @@ class GcBiasProcessor():
         #coveragefile.iterateOverChromosomes(self.process)
         #self.chromnamelist = coveragefile.getChromosomeNames()
 
-    def process(self, coveragefiles, reference, callback):
-        self.meanlists = [[]*len(coveragefiles)]
+    def process(self, coveragefiles, reference):
+        self.meanlists = [[]]*len(coveragefiles)
         chromnamelist = coveragefiles[0].getChromosomeNames()
         storeSequence = False
         refchrom = ''
@@ -48,7 +46,8 @@ class GcBiasProcessor():
                 chromosomes = []
                 for coveragefile in coveragefiles:
                     chromosomes.append(coveragefile.getChromosome(lastchrom))
-                self.calculate_GC_chromosome(coveragefiles[0].getChromosome(lastchrom), chromosomeSeq)
+                #self.calculate_GC_chromosome(coveragefiles[0].getChromosome(lastchrom), chromosomeSeq)
+                self.calculate_GC_chromosome(chromosomes, chromosomeSeq)
                 chromosomeSeq = ''
                 storeSequence = False
 
@@ -58,7 +57,7 @@ class GcBiasProcessor():
                       'e probably not included within the reference file. Check if chromosome names in the bed are'
                       'in the same format as the reference')
 
-        callback(self.gcperclist, self.meanlists, coveragefiles)
+        return self.gcperclist, self.meanlists, coveragefiles
 
 
 

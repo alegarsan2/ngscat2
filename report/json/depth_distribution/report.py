@@ -6,7 +6,7 @@ class Report():
 
     def report(self, coveragefiles, target_distribution_result):
 
-        with open(self.outdir + 'percentile.json', 'w') as outfile:
+        with open(self.outdir + '/data/percentile.json', 'w') as outfile:
             json.dump(target_distribution_result, outfile)
 
 

@@ -1,0 +1,1 @@
+{"warnbasescovered": 90, "warnsaturation": 1e-05, "warnontarget": 80, "maxduplicates": 5, "warnmeancoverage": 40, "warncoveragethreshold": 6, "warncoveragecorrelation": 0.9, "warnstd": 0.3, "npointsperchrom": 50, "distributionbins": 40}

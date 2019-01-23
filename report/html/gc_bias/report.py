@@ -5,18 +5,23 @@ import scipy.stats as st
 
 
 class Report():
-    def __init__(self, MainReporter):
+    def __init__(self, mainreporter):
 
-        #FIXME hacer que los ficheros de salida tengan diferentes nombre, ya sea +0 +1
-        MainReporter.addsections('gc_bias', self)
-        self.outdir = MainReporter.outdir + '/data/gcbias_plot.html'
+        self.outdir = mainreporter.outdir
         self.plot_dir = []
-
+        self.mainreporter = mainreporter
     def report(self, gclist, meanlists, coveragefiles):
         ymax = max(max(meanlist) for meanlist in meanlists)
         ymin = min(min(meanlist) for meanlist in meanlists)
         xmax = max(gclist)
         xmin = min(gclist)
+        # colorsc = [[0.0, '#FDFDFF'],
+        #             [0.16666666666666666, '#004582'],
+        #             [0.3333333333333333, '#daa2ac'],
+        #             [0.5, '#598E4E'],
+        #             [0.6666666666666666, '#925684'],
+        #             [0.8333333333333333, '#5f3868'],
+        #             [1.0, '#001C82']]
         colorsc = [[0.0, '#fcf9f7'],
                     [0.16666666666666666, '#edcfc9'],
                     [0.3333333333333333, '#daa2ac'],
@@ -31,6 +36,7 @@ class Report():
                               outdir= self.outdir + '/data/gcbias_plot'+ str(indx) +'.html')
 
             self.plot_dir.append(self.outdir + '/data/gcbias_plot'+ str(indx) +'.html')
+        self.mainreporter.addsection('gc_bias', self)
 
 
     def kde_scipy(self, vals1, vals2, a, b, c, d, N):
@@ -61,7 +67,7 @@ class Report():
                 colorscale = colorsc,
                 # reversescale=True,
                 opacity=0.9,
-                contours= dict(showlines = False)
+                contours= dict(showlines = False),
             )]
 
         layout_comp = go.Layout(
@@ -83,14 +89,15 @@ class Report():
                 nticks=7
             ),
             margin=go.layout.Margin(
-                l=50,
-                r=40,
-                b=85,
-                t=100,
+                l=40,
+                r=30,
+                b=30,
+                t=50,
             ),
         )
 
         fig = go.Figure(data=trace, layout=layout_comp)
         plotly.offline.plot(fig, filename= outdir,
-                            auto_open=True,
-                            config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False,
+                            config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                        showlink=False))

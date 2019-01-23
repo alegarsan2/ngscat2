@@ -1,6 +1,8 @@
 import plotly.graph_objs as go
 import plotly
 import numpy as np
+
+
 class Report():
     def __init__(self, mainreporter):
         mainreporter.addsection('onoff', self)
@@ -16,29 +18,33 @@ class Report():
         duplicates_status = []
         perconduplicates = []
         percoffduplicates = []
-        warnthreshold = []
-        maxduplicates = []
+        bamfilenames = []
+        totalread = []
+
 
 
         for i, bam in enumerate(read_on_results['results']):
+            bamfilenames.append(bam['bamfilename'])
             percontotal.append(bam['percontotal'])
             enrichment.append(bam['enrichment'])
             onoffstatus.append(bam['onoff_status'])
             duplicates_status.append(bam['duplicates_status'])
             perconduplicates.append(bam['perconduplicates'])
             percoffduplicates.append(bam['percoffduplicates'])
-
+            totalread.append(bam['totalread'])
+        self.summary['bamfilename'] = bamfilenames
         self.summary['percontotal'] = percontotal
         self.summary['enrichment']= enrichment
         self.summary['onoffstatus'] = onoffstatus
         self.summary['duplicates_status']= duplicates_status
         self.summary['perconduplicates'] = perconduplicates
         self.summary['percoffduplicates'] = percoffduplicates
+        self.summary['totalread'] = totalread
         self.summary['warnthreshold'] = read_on_results['results'][0]['warnthreshold']
         self.summary['maxduplicates'] = read_on_results['maxduplicates']
 
-    def summary(self, read_on_results, key):
-        return read_on_results[key]
+    def getsummary(self):
+        return self.summary
 
     def on_target_plot(self, read_on_results):
         """*****************************************************************************************************************
@@ -79,7 +85,7 @@ class Report():
                 y=list(bam['perconperchr'].values()),
                 hoverinfo='text',
                 hoverlabel=dict(font=dict(color=['black'])),
-                text=['Percentage:' + str(value) + '%' for value in list(bam['perconperchr'].values())],
+                text=['Percentage:' + str(round(value,2)) + '%' for value in list(bam['perconperchr'].values())],
                 # mode='lines',
                 name=bam['legend'],
                 marker=dict(color=colors[i]))
@@ -107,7 +113,8 @@ class Report():
         fig = go.Figure(data=data,layout=layout_comp)
                         # layout=layout_comp)
         plotly.offline.plot(fig, filename=self.mainreporter.outdir + '/data/reads_on_target.html',
-                            auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                                         showlink=False))
 
     def duplicates_plot(self, read_on_results):
 
@@ -141,7 +148,7 @@ class Report():
                 y=yon,
                 hoverinfo='text',
                 hoverlabel=dict(font=dict(color=['black'] * len(x))),
-                text=['Percentage on: ' + str(value) + '%' for value in yon],
+                text=['Percentage on: ' + str(round(value,2)) + '%' for value in yon],
                 # mode='lines',
                 name='on target duplicates')
             # marker=dict(color=colors[i]))
@@ -152,21 +159,22 @@ class Report():
                 y=yoff,
                 hoverinfo='text',
                 hoverlabel=dict(font=dict(color=['black'])),
-                text=['Percentage off: ' + str(value) + '%' for value in yoff],
+                text=['Percentage off: ' + str(round(value,2)) + '%' for value in yoff],
                 name='off target duplicates')
             # marker=dict(color=colors[i]))
             data.append(traceoff)
 
             layout_comp = go.Layout(
-                title='Duplicates',
+                title=bam['legend'],
                 hovermode='closest',
                 barmode='group',
                 xaxis=dict(showticklabels=True, showgrid=True, title='# of duplicates'),
                 yaxis=dict(title='% of reads'))
 
             fig = go.Figure(data=data, layout=layout_comp)
-            plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/duplicates_' + bam['legend'] + '.html',
-                                auto_open=True,
-                                config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+            plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/duplicates_' + str(i) + '.html',
+                                auto_open=False,
+                                config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                            showlink=False))
 
-            self.plot_dir_duplicates.append(self.mainreporter.outdir + 'data/duplicates_' + bam['legend'] + '.html')
+            self.plot_dir_duplicates.append(self.mainreporter.outdir + 'data/duplicates_' + str(i) + '.html')

@@ -7,7 +7,7 @@ class Report():
         '''Generate Nocoverage.txt of regions within targets that have Zero coverage.
         Input: Coveragefile object, outdir '''
         for coveragefile in coveragefiles:
-            zerosProcessor = ZeroesProcessor(coveragefile, self.outdir + "/NoCoverage.txt")
+            zerosProcessor = ZeroesProcessor(coveragefile, self.outdir + "/data/NoCoverage.txt")
             coveragefile.iterateOverRegions(zerosProcessor.process)
             zerosProcessor.file.close()
 

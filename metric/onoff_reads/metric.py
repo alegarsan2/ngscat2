@@ -1,18 +1,16 @@
-import gc
-import numpy as np
-import bed_file
+from utils import bam_file, bed_file
+
+
 # due to pysam implementation and restrictions, we should make this
 # global so we can share the memory by forking
-gBamList = []
 class OnOffReadsProcessor():
-    def __init__(self, bamlist, maxduplicates = 5, warnthreshold = 80):
+    def __init__(self, maxduplicates = 5, warnthreshold = 80):
         global gBamlist
         self.results = []
         self.maxduplicates = maxduplicates
         self.warnthreshold = warnthreshold
-        gBamlist = bamlist
         print('A')
-    def process(self, beddir, callback):
+    def process(self, bamlistdir,beddir):
 
         """************************************************************************************************************************************************************
         Task: Print reads on traget and off target
@@ -46,8 +44,7 @@ class OnOffReadsProcessor():
         percoffduplicates = []
         enrichment = []
 
-        bamlist = gBamlist
-        print('A')
+        bamlist = [bam_file.bam_file(bamdir) for bamdir in bamlistdir]
         #Adding data
         for bam in bamlist:
             nread_tmp, onperchr_tmp, totalperchr_tmp, onduplicates_tmp, offduplicates_tmp = bam.myReadsOnTarget(beddir)
@@ -133,7 +130,7 @@ class OnOffReadsProcessor():
         read_on_results['maxduplicates'] = self.maxduplicates
 
 
-        callback(read_on_results)
+        return (read_on_results,)
 
         # with open(self.outdir +'/read_on_results.json', 'w') as outfile:
         #     json.dump(read_on_results, outfile)

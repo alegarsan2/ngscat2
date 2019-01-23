@@ -2,13 +2,11 @@ import plotly.graph_objs as go
 import plotly
 import numpy as np
 
-
 class Report():
     def __init__(self, mainreporter):
         #En este caso no hace falta nada, unicamente el outdir por lo que hay que
         #pasarle el mainreporter al report.
 
-        mainreporter.addsection('covperposition', self)
         self.mainreporter = mainreporter
         self.plot_dir = []
 
@@ -43,10 +41,12 @@ class Report():
             #TODO como obtengo el output dir desde el mainreporter
             fig = go.Figure(data=traces, layout=layout_comp)
             plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html',
-                                auto_open=True,
+                                auto_open=False,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
+
+            self.mainreporter.addsection('covperposition', self)
 
     def computeWindowSize(self, coverage, chromosomename, npoints):
         ''' Compute window size
@@ -133,7 +133,7 @@ class Report():
             hoverinfo='text',
             text=text,
             mode='lines+markers',
-            name=str(coverage.name),
+            name=str(coverage.name.decode('utf-8').split('/')[-1]),
             #line=dict(color=colors[0]),
         )
 

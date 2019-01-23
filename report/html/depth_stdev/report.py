@@ -5,10 +5,10 @@ import numpy as np
 class Report():
     def __init__(self, mainreporter):
 
-        mainreporter.addsection('stdev', self)
         self.plot_dir_hist = mainreporter.outdir + '/data/std_histplot.html'
         self.plot_dir_boxplot = mainreporter.outdir + '/data/std_boxplot.html'
         self.summary = {}
+        self.mainreporter = mainreporter
 
     def report(self, stdlists, results):
         self.std_distr_box(stdlists, results)
@@ -33,8 +33,9 @@ class Report():
         self.summary['status']= status
         self.summary['mean'] = mean
         self.summary['warnthreshold'] = results['warnthreshold']
+        self.mainreporter.addsection('stdev', self)
 
-    def summary(self):
+    def getsummary(self):
         # Attribute encapsulation
         return self.summary
 
@@ -69,8 +70,8 @@ class Report():
             legend=dict(x=0.75,
                         y=1),
             margin=go.layout.Margin(
-                l=50,
-                r=10,
+                l=60,
+                r=20,
                 b=30,
                 t=50,
                 pad=4
@@ -79,7 +80,8 @@ class Report():
 
         fig = go.Figure(data=traces, layout=layout_comp)
         plotly.offline.plot(fig, filename=self.plot_dir_hist,
-                            auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                                         showlink=False))
 
 
     def std_distr_box(self,stdlists, results):
@@ -113,7 +115,7 @@ class Report():
 
         fig = go.Figure(data=traces, layout=layout_comp)
         plotly.offline.plot(fig, filename= self.plot_dir_boxplot,
-                            auto_open=True,
+                            auto_open=False,
                             config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
 #TODO esta parte es la que va en el main para llamar a a esta funcion.

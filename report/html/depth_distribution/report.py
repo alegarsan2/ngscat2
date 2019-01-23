@@ -4,12 +4,12 @@ import numpy as np
 class Report():
     #FIXME como puedo acceder al outdir del  main report sin pasarle el mainreport al report como atributo o como entrada.
     def __init__(self, mainreporter):
+        self.mainreporter = mainreporter
 
-        mainreporter.addsection('distribution', self)
         #Aquí añadiremos las keys necesarias para generar el report
         self.summary = {}
         self.plot_dir_hist= mainreporter.outdir + '/data/coverage_histplot.html'
-        self.plot_dir_boxplot= mainreporter.outdir + '/data/target_boxplot.html'
+        self.plot_dir_boxplot= mainreporter.outdir + '/data/coverage_boxplot.html'
 
     def report(self, coveragefiles, target_distribution_results):
         self.target_distribution_histplot(coveragefiles, target_distribution_results)
@@ -28,7 +28,11 @@ class Report():
         self.summary['status'] = status
         self.summary['mean'] = mean
 
-    def summary(self):
+        self.mainreporter.addsection('distribution', self)
+
+
+
+    def getsummary(self):
          #Attribute encapsulation
         return self.summary
 
@@ -62,12 +66,19 @@ class Report():
             hovermode='closest',
             barmode='group',
             xaxis=dict(showticklabels=True, showgrid=True, title='Coverage'),
-            yaxis=dict(title='Count')
+            yaxis=dict(title='Count'),
+            margin=go.layout.Margin(
+                l=50,
+                r=10,
+                b=20,
+                t=50,
+                pad=8),
+            legend= dict(bgcolor= 'rgba(0,0,0,0)')
         )
 
         fig = go.Figure(data=data, layout=layout_comp)
         plotly.offline.plot(fig, filename= self.plot_dir_hist,
-                            auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
     def target_distribution_boxplot(self, coveragelist, target_distribution_result):
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
@@ -96,11 +107,12 @@ class Report():
             margin=go.layout.Margin(
                 l=50,
                 r=10,
-                b=10,
+                b=20,
                 t=50,
-                pad=4
+                pad=8
             ),
         )
         fig = go.Figure(data=data, layout=layout_comp)
         plotly.offline.plot(fig, filename=self.plot_dir_boxplot,
-                            auto_open=True, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                                                         showlink=False))

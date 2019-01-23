@@ -1,15 +1,15 @@
+ #!/usr/bin/env python3
+
 import optparse
 import sys
 import os
-import glob
 import json
 from multiprocessing import Manager
 from multiprocessing import Pool
 from multiprocessing import cpu_count
-from multiprocessing import reduction
 
-from bam_file import bam_file
-import bed_file
+from utils.bam_file import bam_file
+from utils import bed_file
 from report.html.HtmlReport import HtmlReport
 
 from metric.onoff_reads.metric import OnOffReadsProcessor
@@ -85,7 +85,6 @@ def parse_arguments():
     #This is used in we want to return an arguments dictionary instead parser object
     #option_dict = {}
     #option_dict = vars(options)
-
     options, args = parser.parse_args()
 
 
@@ -144,7 +143,7 @@ def check_parameters(options, parser):
         sys.exit(1)
 
     err = bed_file.bed_file(options.bed).checkformat()
-    if (err is not ''):
+    if err is not '':
         print('ERROR: incorrect bed file format.')
         print('	' + err)
         sys.exit(1)
@@ -158,17 +157,18 @@ def check_parameters(options, parser):
         print('ERROR: the --out parameter is required. Please, provide full path to an existing directory where results can be saved.')
         sys.exit(1)
 
-    if ((os.path.isdir(options.outdir) or os.path.islink(options.outdir)) and (
-            os.path.isdir(options.outdir + '/data') or os.path.islink(options.outdir + '/data')) and len(
-            glob.glob(options.outdir + '/data/*_Ontarget_Coverage.png')) > 0):
-        print('WARNING: ' + options.outdir + ' directory seems to contain previous NGScat results. Saving results of current execution in this directory may cause incorrect report generation.')
-        print('Continue with current setting? (y/n)')
 
-        proceed = input().lower()
-        while (proceed is not 'y' and proceed is not 'n'):
-            proceed = input().lower()
-        if (proceed is 'n'):
-            sys.exit(1)
+    #FIXME, lines down here commented for debugging
+    # if ((os.path.isdir(options.outdir) or os.path.islink(options.outdir)) and (
+    #         os.path.isdir(options.outdir + '/data') or os.path.islink(options.outdir + '/data')) and len(
+    #         glob.glob(options.outdir + '/data/*_Ontarget_Coverage.html')) > 0):
+    #     print('WARNING: ' + options.outdir + ' directory seems to contain previous NGScat results. Saving results of current execution in this directory may cause incorrect report generation.')
+    #     print('Continue with current setting? (y/n)')
+    #     proceed = input().lower()
+    #     while proceed is not 'y' and proceed is not 'n':
+    #         proceed = input().lower()
+    #     if proceed is 'n':
+    #         sys.exit(1)
 
     ## reference
     if (options.reference is not None and (not (os.path.isfile(options.reference) or os.path.islink(options.reference)))):
@@ -212,28 +212,21 @@ def check_parameters(options, parser):
         print('ERROR: ' + options.tmp + ' does not exist.')
         sys.exit(1)
 
+    options.coveragethresholds = tuple(int(x) for x in options.coveragethresholds.split(','))
     return True
 
 
-    #Class wrapper of different kinds of results for instance (onoffplots, onoffjson, onoffxls)
+#Class wrapper of different kinds of results for instance (onoffplots, onoffjson, onoffxls)
 class CompoundReporter:
     def __init__(self, reporters):
         self.reporters = reporters
 
-    def report(self, *args):
+    def report(self, args):
         for report in self.reporters:
             report(*args)
 
-def generate_report(options):
-
-    # crear el pool, con nº hilos core-1
-    # generar coverfile
-    # crear métricas
-    # crear main reports
-    # crear subreports
-    # lanzar todas las métricas
-    # esperar a que acabe todo
-    # generar informe final
+def generate_report(options, config):
+    #Directory generation, i
 
     #Bamfile object generation, if not sorted do it and(sequentally made, maybe no improvement due I/O limitations)
     #Sorted and .bai Checking
@@ -245,6 +238,29 @@ def generate_report(options):
         else:
             bamsorted = bam
         bamlist.append(bamsorted)
+    bamlistdir = [bam.filename.decode('utf-8') for bam in bamlist]
+
+    # Creating the pool and designating number of workers
+    mainpool = Pool(processes=options.nthreads)
+    # Main reporter generator
+    mainReporter = HtmlReport(options.outdir, options)
+
+    # #Specificity: OnOffReport
+
+    # FIXME pasar las rutas de los bams ordenados a  esta funcion, e instanciar de nuevo clase bamfile
+    onoffhtml = OnOffHtml(mainReporter).report
+    onoffjson = OnOffJson(options.outdir).report
+    onoffxls = OnOffXls(options.outdir).report
+
+    # onoffreporter = CompoundReporter([onoffhtml,onoffjson,onoffxls])
+    # mainpool.apply_async(OnOffReadsProcessor().process, args=(bamlist, options.bed, onoffreporter.report)).get()
+
+    onoffreporter = CompoundReporter([onoffhtml, onoffjson, onoffxls])
+
+    mainpool.apply_async(
+        OnOffReadsProcessor(config.getconfig()['maxduplicates'], config.getconfig()['warnontarget']).process,
+        args=(bamlistdir, options.bed), callback=onoffreporter.report)
+
 
     #Generating coverage_file objects from bamlist
     #TODO arreglar bedgraphs
@@ -253,17 +269,17 @@ def generate_report(options):
         cover,_ = bam.myCoverageBed(options.bed)
         coveragefiles.append(cover)
 
+    del bamlist
+
     # Creating Space of data to share between threads
     mgr = Manager()
     ns = mgr.Namespace()
     ns.coveragefiles = coveragefiles
-    #Creating the pool and designating number of workers
-    mainpool = Pool(processes= options.nthreads)
 
-
-    #Main reporter generator
-    mainReporter = HtmlReport(options.outdir, options)
-
+    # #Creating the pool and designating number of workers
+    # mainpool = Pool(processes= options.nthreads)
+    # #Main reporter generator
+    # mainReporter = HtmlReport(options.outdir, options)
 
     #Metric reporter generator, main reporter will be passed as an argument
 
@@ -275,26 +291,26 @@ def generate_report(options):
 
     thresholdreporter = CompoundReporter([thresholdhtml, thresholdjson, thresholdxls])
 
-    mainpool.apply_async(DepthThresProcessor().process, args=(ns.coveragefiles, thresholdreporter.report))
+    mainpool.apply_async(DepthThresProcessor(options.coveragethresholds, config.getconfig()['warncoveragethreshold']).process,
+                         args=(ns.coveragefiles,), callback=thresholdreporter.report).get()
 
     # Sensitivity:(Optional) Saturation
 
 
-    #Specificity: OnOffReport
-    onoffhtml = OnOffHtml(mainReporter).report
-    onoffjson = OnOffJson(options.outdir).report
-    onoffxls = OnOffXls(options.outdir).report
+    # #Specificity: OnOffReport
 
-    # onoffreporter = CompoundReporter([onoffhtml,onoffjson,onoffxls])
-    # mainpool.apply_async(OnOffReadsProcessor().process, args=(bamlist, options.bed, onoffreporter.report)).get()
-
-    onoffreporter = CompoundReporter([onoffhtml, onoffjson, onoffxls])
-    onoffprocessor = OnOffReadsProcessor(bamlist)
-    # # mainpool.apply_async(onoffprocessor.process, args=(options.bed, onoffreporter.report)).get()
-    # mainpool.apply(onoffprocessor.process, args=(bamlist,options.bed, onoffreporter.report)).get()
-    # # onoffprocessor.process(bamlist, options.bed, onoffreporter.report)
-
-    mainpool.apply(onoffprocessor.process, args=(options.bed, onoffreporter.report))
+    # #FIXME pasar las rutas de los bams ordenados a  esta funcion, e instanciar de nuevo clase bamfile
+    # onoffhtml = OnOffHtml(mainReporter).report
+    # onoffjson = OnOffJson(options.outdir).report
+    # onoffxls = OnOffXls(options.outdir).report
+    #
+    # # onoffreporter = CompoundReporter([onoffhtml,onoffjson,onoffxls])
+    # # mainpool.apply_async(OnOffReadsProcessor().process, args=(bamlist, options.bed, onoffreporter.report)).get()
+    #
+    # onoffreporter = CompoundReporter([onoffhtml, onoffjson, onoffxls])
+    #
+    # mainpool.apply_async(OnOffReadsProcessor(config.getconfig()['maxduplicates'], config.getconfig()['warnontarget']).process,
+    #                      args=(bamlistdir, options.bed), callback=onoffreporter.report)
 
 
 
@@ -305,29 +321,37 @@ def generate_report(options):
 
     distributionreporter = CompoundReporter([distributionhtml, distributionjson, distributionxls])
 
-    mainpool.apply_async(DepthDistrProcessor().process, args=(ns.coveragefiles, distributionreporter.report))
+    mainpool.apply_async(DepthDistrProcessor(config.getconfig()['distributionbins'], config.getconfig()['warnmeancoverage']).process,
+                         args=(ns.coveragefiles,), callback=distributionreporter.report)
 
     #Uniformity: depth_perposition Coverage_per_position
-    perpositionreporter = PerpositionHtml(mainReporter)
-    mainpool.apply_async(DepthPerPositionProcessor().process, args=(ns.coveragefiles, perpositionreporter.report))
+    perpositionHtml = PerpositionHtml(mainReporter).report
+    perpositionreporter = CompoundReporter([perpositionHtml])
 
-    #Uniformity: Standart deviation within regions
+    mainpool.apply_async(DepthPerPositionProcessor(config.getconfig()['npointsperchrom']).process,
+                         args=(ns.coveragefiles,), callback= perpositionreporter.report)
+
+    # #Uniformity: Standart deviation within regions
     stdevhtml = StdHtml(mainReporter).report
     stdevjson = StdJson(options.outdir).report
     stdevxls = StdXls(options.outdir).report
 
     stdevreporter = CompoundReporter([stdevhtml,stdevjson,stdevxls])
-    mainpool.apply_async(StdevProcessor().process, args=(ns.coveragefiles, stdevreporter.report)).get()
+    mainpool.apply_async(StdevProcessor(config.getconfig()['warnstd']).process,
+                         args=(ns.coveragefiles,), callback= stdevreporter.report)
 
     #Uniformity: Nocoverage txt
     zerocoveragereporter = ZeroCoverageTxt(options.outdir).report
-    mainpool.apply_async(RegionsWithZeroesProcessor, args= (ns.coveragefiles,zerocoveragereporter))
+    mainpool.apply_async(RegionsWithZeroesProcessor, args= (ns.coveragefiles, zerocoveragereporter))
 
 
-    #Uniformity(optional) GC Bias reference required
+
+    # #Uniformity(optional) GC Bias reference required
     if options.reference is not None:
-        gcbiasreporter = GcBiasHtml(mainReporter)
-        mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference, gcbiasreporter.report))
+        gcbiashtml = GcBiasHtml(mainReporter).report
+        gcbiasreporter = CompoundReporter([gcbiashtml])
+
+        mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference), callback= gcbiasreporter.report)
 
 
     #Waits until all threads are finished
@@ -336,7 +360,7 @@ def generate_report(options):
     mainpool.join()
 
     #Html generation
-    #mainReporter.report()
+    mainReporter.report(options)
 
 
 #TODO gnerate json with config arguments.
@@ -345,20 +369,20 @@ def generate_json(outdir):
     config = dict([('warnbasescovered', 90),
                    ('warnsaturation',1e-5 ),
                    ('warnontarget', 80),
+                   ('maxduplicates', 5),
                    ('warnmeancoverage',40),
-                   ('warncoverageregion',100),
                    ('warncoveragethreshold',6),
                    ('warncoveragecorrelation',0.9),
                    ('warnstd',0.3),
-                   ('bins', 40)
+                   ('npointsperchrom', 50),
+                   ('distributionbins', 40)
                    ])
-    with open(outdir + '/config.json', 'w') as config_json:
+    with open(outdir + 'config.json', 'w') as config_json:
         json.dump(config, config_json)
-
 
 class ConfigArgs:
     def __init__(self, configdir):
-        with open(configdir) as json_file:
+        with open(configdir , 'r') as json_file:
             self.config = json.load(json_file)
 
     def getconfig(self):
@@ -368,7 +392,14 @@ def main():
 
     options, args, parser = parse_arguments()
     if check_parameters(options, parser):
-        generate_report(options)
+
+        #TODO load the config json
+        #generate_json(os.path.dirname(sys.argv[0]))
+        config =  ConfigArgs(os.path.dirname(sys.argv[0]) + 'config.json')
+        #configargs = ConfigArgs(os.path.dirname(sys.argv[0]) + 'config.json')
+        generate_report(options, config)
+
+        print('a')
     else:
         print('Error')
 

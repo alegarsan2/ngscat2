@@ -6,7 +6,7 @@ class DepthDistrProcessor():
         self.warnthreshold = warnthreshold
         self.results = []
 
-    def process(self, coveragefiles, callback):
+    def process(self, coveragefiles):
         results = []
         histlist = []
         percentile = []
@@ -47,20 +47,21 @@ class DepthDistrProcessor():
             zerocov.append(len(coveragefile.coverages) - len(indnonzero))
 
 
-            for i in range(len(coveragefiles)):
-                results.append(dict(
-                    [('bamfilename', coveragefiles[i].name.decode('utf-8')),
-                     ('legend', (coveragefiles[i].name.decode('utf-8').split('/')[-1])),
-                     ('histdata', histlist[i]),
-                     ('percentile', percentile[i]),
-                     ('max', float(maximum[i])),
-                     ('min', float(minimum[i])),
-                     ('mean', mean[i]),
-                     ('median', median[i]),
-                     ('zerocov', float(zerocov[i])),
-                     ('status', 'ok' if mean[i] >= self.warnthreshold else 'warning'),
-                     ('warnthreshold', self.warnthreshold)]
-                ))
+        for i in range(len(coveragefiles)):
+            results.append(dict(
+                [('bamfilename', coveragefiles[i].name.decode('utf-8')),
+                 ('legend', (coveragefiles[i].name.decode('utf-8').split('/')[-1])),
+                 ('histdata', histlist[i]),
+                 ('percentile', percentile[i]),
+                 ('max', float(maximum[i])),
+                 ('min', float(minimum[i])),
+                 ('mean', mean[i]),
+                 ('median', median[i]),
+                 ('zerocov', float(zerocov[i])),
+                 ('status', 'ok' if mean[i] >= self.warnthreshold else 'warning'),
+                 ('warnthreshold', self.warnthreshold)]
+            ))
 
 
-        callback(coveragefiles, results)
+        # callback(coveragefiles, results)
+        return coveragefiles, results

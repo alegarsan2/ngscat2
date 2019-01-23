@@ -16,7 +16,8 @@ class StdevProcessor:
     def __init__(self, warnthreshold= 0.3):
         self.warnthreshold = warnthreshold
         self.stdlists = []
-    def process(self, coveragefiles, callback):
+
+    def process(self, coveragefiles):
         region_stddistribution_result = {}
         region_stddistribution_result['warnthreshold'] = self.warnthreshold
         region_stddistribution_result['results'] = []
@@ -27,7 +28,7 @@ class StdevProcessor:
             result = self.calculate_results(coverage, iterator.stdlist, self.warnthreshold)
             region_stddistribution_result['results'].append(result)
 
-        callback(self.stdlists, region_stddistribution_result)
+        return self.stdlists, region_stddistribution_result
 
     def calculate_results(self, coverage, stdlist, warnthreshold):
         histlist = []

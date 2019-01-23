@@ -47,7 +47,7 @@ class Report():
                 ws.write(j + 6, 3, bam['perconperchr'][chr])
                 ws.write(j + 6, 4, 100.0 - bam['perconperchr'][chr])
 
-        wb.save(self.outdir + '/reads_on_target.xls')
+        wb.save(self.outdir + '/data/reads_on_target.xls')
 
     def duplicates_xls(self, read_on_results):
         # Initialize the workbook and sheet

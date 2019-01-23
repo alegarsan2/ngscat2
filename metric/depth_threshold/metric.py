@@ -8,7 +8,7 @@ class DepthThresProcessor():
 
 
 
-    def process(self, coveragefiles, callback):
+    def process(self, coveragefiles):
         ntotal_positions = [0] * len(coveragefiles)
         covered_positions_per_depth = [[0 for x in range(len(self.coveragethreshold))] for y in range(len(coveragefiles))]
         covered_position = []  # list containing dictionary number of position with more depth than threshold
@@ -48,5 +48,5 @@ class DepthThresProcessor():
                  ('warnthreshold', self.warnthreshold)])
             )
 
-        callback(coveragefiles, results)
+        return coveragefiles, results
 
