@@ -46,9 +46,9 @@ packrat/src/
 
 ## Project
 # image file
-*.svg
-*.png
-!img/*.png
+#*.svg
+#*.png
+#!img/*.png
 
 # project environment file
 .env
