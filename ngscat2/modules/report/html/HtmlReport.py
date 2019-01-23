@@ -56,6 +56,7 @@ class HtmlReport:
         reportcontent = reportcontent.replace('coveragethrs', str(options.coveragethresholds))
         reportcontent = reportcontent.replace('reference',options.reference if options.reference is not None else "No reference")
         reportcontent = reportcontent.replace('saturationcurve', options.saturation)
+        reportcontent = reportcontent.replace('saturationcurve', 'N')
         reportcontent = reportcontent.replace('nthreads', str(options.nthreads))
         reportcontent = reportcontent.replace('tmpdir',options.tmp)
 
@@ -91,12 +92,12 @@ class HtmlReport:
         summarystatus += '<td class="table-header"></td>\n'
         summarystatus += '<td class="table-header"><a href="#targetbases"><img src="img/<TARGETBASESSTATUS>.jpg" height=23px /></a></td>\n'
 
-        if 'saturation' in self.sections:
-            summarystatus += '<td class="table-header"><a href="#coveragesaturation"><img src="img/<COVERAGESATURATIONSTATUS>.jpg" height=23px /></a></td>\n'
-        summarystatus += '<td class="table-header"><a href="#onoff"><img src="img/<ONOFFSTATUS>.jpg" height=23px /></a></td>\n'
-        summarystatus += '<td class="table-header"><a href="#dup"><img src="img/<DUPSTATUS>.jpg" height=23px /></a></td>\n'
-        summarystatus += '<td class="table-header"><a href="#distribution"><img src="img/<DISTRIBUTIONSTATUS>.jpg" height=23px /></a></td>\n'
-        summarystatus += '<td class="table-header"><a href="#coveragethroughtarget"><img src="img/<COVERAGETHROUGHTARGETSTATUS>.jpg" height=23px /></a></td>\n'
+        # if 'saturation' in self.sections:
+        #     summarystatus += '<td class="table-header"><a href="#coveragesaturation"><img src="img/<COVERAGESATURATIONSTATUS>.jpg" height=23px /></a></td>\n'
+        # summarystatus += '<td class="table-header"><a href="#onoff"><img src="img/<ONOFFSTATUS>.jpg" height=23px /></a></td>\n'
+        # summarystatus += '<td class="table-header"><a href="#dup"><img src="img/<DUPSTATUS>.jpg" height=23px /></a></td>\n'
+        # summarystatus += '<td class="table-header"><a href="#distribution"><img src="img/<DISTRIBUTIONSTATUS>.jpg" height=23px /></a></td>\n'
+        # summarystatus += '<td class="table-header"><a href="#coveragethroughtarget"><img src="img/<COVERAGETHROUGHTARGETSTATUS>.jpg" height=23px /></a></td>\n'
 
         if 'coveragecorr' in self.sections:
             summarystatus += '<td class="table-header"><a href="#coveragecorr"><img src="img/<COVERAGECORRSTATUS>.jpg" height=23px /></a></td>\n'
@@ -106,9 +107,9 @@ class HtmlReport:
         reportcontent = reportcontent.replace('<SUMMARYROWS>', summaryrows)
         reportcontent = reportcontent.replace('<SUMMARYSTATUS>', summarystatus)
 
-        if 'saturation' in self.sections:
-            reportcontent = reportcontent.replace('<SUMMARYSATURATION>',
-                                                  '<td class="table-header"><a href="#coveragesaturation">Coverage saturation<br>(slope at the end of the curve)</a></td>')
+        # if 'saturation' in self.sections:
+        #     reportcontent = reportcontent.replace('<SUMMARYSATURATION>',
+        #                                           '<td class="table-header"><a href="#coveragesaturation">Coverage saturation<br>(slope at the end of the curve)</a></td>')
         else:
             reportcontent = reportcontent.replace('<SUMMARYSATURATION>', '')
 
