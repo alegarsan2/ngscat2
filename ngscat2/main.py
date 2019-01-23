@@ -400,7 +400,9 @@ def main():
 
         #TODO load the config json
         #generate_json(os.path.dirname(sys.argv[0]))
-        config =  ConfigArgs(os.path.dirname(sys.argv[0]) + '/config.json')
+        config_folder = os.path.dirname(__file__)
+        config_filepath = os.path.join(config_folder, "config.json")
+        config =  ConfigArgs(config_filepath)
         #configargs = ConfigArgs(os.path.dirname(sys.argv[0]) + 'config.json')
         generate_report(options, config)
 
