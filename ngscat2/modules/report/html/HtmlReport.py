@@ -55,7 +55,7 @@ class HtmlReport:
         reportcontent = reportcontent.replace('reportdate', time.ctime())
         reportcontent = reportcontent.replace('coveragethrs', str(options.coveragethresholds))
         reportcontent = reportcontent.replace('reference',options.reference if options.reference is not None else "No reference")
-        reportcontent = reportcontent.replace('saturationcurve', options.saturation)
+        #reportcontent = reportcontent.replace('saturationcurve', options.saturation)
         reportcontent = reportcontent.replace('saturationcurve', 'N')
         reportcontent = reportcontent.replace('nthreads', str(options.nthreads))
         reportcontent = reportcontent.replace('tmpdir',options.tmp)
