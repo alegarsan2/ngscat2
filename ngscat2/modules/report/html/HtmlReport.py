@@ -1,12 +1,17 @@
 import shutil
 import string
+from ngscat2.utils.getpaths import get_project_root
 import time
 import sys
 import os
 import glob
 
-DATASRC = os.path.dirname(sys.argv[0])+'html/'
-IMGSRC = os.path.dirname(sys.argv[0])+'img/'
+#DATASRC = os.path.dirname(sys.argv[0])+'html/'
+#IMGSRC = os.path.dirname(sys.argv[0])+'img/'
+
+IMGSRC = os.path.join(get_project_root(), "img")
+DATASRC = os.path.join(get_project_root(), "html")
+
 #TMP = /tmp/
 
 class HtmlReport:
