@@ -11,17 +11,10 @@ try:
 except ImportError:
     print('WARNING: module numpy was not loaded.')
 
-#from matplotlib import pyplot
 
 sys.path.append('/home/agarcia/PycharmProjects/ngscat2')
 
 from ngscat2.utils import bed_file, coverage_file
-
-# TMP ='/home/fjavier/tmp/'
-TMP = '/home/agarcia/tmp/'
-# CHR_LENGTHS = '/data/reference_genomes/human/human_g1k_v37.genome'
-CHR_LENGTHS = '/home/javi/MGP/data/reference_genomes/human/human_g1k_v37.genome'
-
 
 class bam_file(pysam.Samfile):
 

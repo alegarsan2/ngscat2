@@ -3,18 +3,14 @@
 # except ImportError:
 #     print('WARNING: module pyplot was not loaded.')
 
-try:
-    import progressbar
-except ImportError:
-    print('WARNING: module progressbar was not loaded.')
 
 #import sets
 
 import os
 
-CHR_LENGTHS = '/usr/local/reference_genomes/human/human_g1k_v37.1-22XYM.genome'
-TMP = '/tmp/'
-BEDTOOLS = '/usr/local/bedtools/bin/'
+# CHR_LENGTHS = '/usr/local/reference_genomes/human/human_g1k_v37.1-22XYM.genome'
+# TMP = '/tmp/'
+# BEDTOOLS = '/usr/local/bedtools/bin/'
 
 
 class bed_file:
