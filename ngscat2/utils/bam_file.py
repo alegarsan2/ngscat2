@@ -11,11 +11,6 @@ try:
 except ImportError:
     print('WARNING: module numpy was not loaded.')
 
-try:
-    import progressbar
-except ImportError:
-    print('WARNING: module progressbar was not loaded.')
-
 #from matplotlib import pyplot
 
 sys.path.append('/home/agarcia/PycharmProjects/ngscat2')

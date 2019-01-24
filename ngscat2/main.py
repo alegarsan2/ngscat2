@@ -53,7 +53,7 @@ def parse_arguments():
        	Task: Assesses capture performance in terms of sensibility, specificity and uniformity of the coverage.
        	Output: An html report will be created at the path indicated with the --out option.
        	************************************************************************************************************************************************************
-       	usage: %prog --bams <filename> --bed <filename> --out <path> --extendtarget <nbases> --reference <filename> --saturation <{y,n}> --depthlist <list> --tmp <path> --threads <integer>"""
+       	usage: %prog --bams <filename> --bed <filename> --out <path>  --reference <filename>  --tmp <path> --threads <integer>"""
 
     parser = optparse.OptionParser(usage)
     parser.add_option("--bams", dest="bams",
