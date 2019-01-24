@@ -1,12 +1,6 @@
-# try:
-#     from matplotlib import pyplot
-# except ImportError:
-#     print('WARNING: module pyplot was not loaded.')
-
-
-#import sets
 
 import os
+import subprocess
 
 # CHR_LENGTHS = '/usr/local/reference_genomes/human/human_g1k_v37.1-22XYM.genome'
 # TMP = '/tmp/'

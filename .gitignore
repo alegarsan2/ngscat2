@@ -193,3 +193,5 @@ venv.bak/
 notebooks/data/
 
 *.odt#
+
+utils/region.py

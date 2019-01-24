@@ -22,14 +22,14 @@ class HtmlReport:
 
         #Copy all data required for html report
 
-        shutil.copy(os.path.join(IMGSRC,'xls_icon.png'), self.outdir + '/img/xls_icon.png')
-        shutil.copy(os.path.join(IMGSRC,'txt_icon.png'), self.outdir + '/img/txt_icon.png')
-        shutil.copy(os.path.join(IMGSRC,'close-icon.png'), self.outdir + '/img/close-icon.png')
-        shutil.copy(os.path.join(IMGSRC,'ok.jpg'), self.outdir + '/img/ok.jpg')
-        shutil.copy(os.path.join(IMGSRC,'warning.jpg'), self.outdir + '/img/warning.jpg')
-        shutil.copy(os.path.join(IMGSRC,'coverage_histogram_example.png'), self.outdir + '/img/coverage_histogram_example.png')
-        shutil.copy(os.path.join(DATASRC,'styles.css'), self.outdir)
-        shutil.copy(os.path.join(DATASRC,'captureQC.html'), self.outdir)
+        shutil.copy(os.path.join(IMGSRC, 'xls_icon.png'), self.outdir + '/img/xls_icon.png')
+        shutil.copy(os.path.join(IMGSRC, 'txt_icon.png'), self.outdir + '/img/txt_icon.png')
+        shutil.copy(os.path.join(IMGSRC, 'close-icon.png'), self.outdir + '/img/close-icon.png')
+        shutil.copy(os.path.join(IMGSRC, 'ok.jpg'), self.outdir + '/img/ok.jpg')
+        shutil.copy(os.path.join(IMGSRC, 'warning.jpg'), self.outdir + '/img/warning.jpg')
+        shutil.copy(os.path.join(IMGSRC, 'coverage_histogram_example.png'), self.outdir + '/img/coverage_histogram_example.png')
+        shutil.copy(os.path.join(DATASRC, 'styles.css'), self.outdir)
+        shutil.copy(os.path.join(DATASRC, 'captureQC.html'), self.outdir)
 
 
         #Opening the data html template in order to write the data
@@ -118,12 +118,6 @@ class HtmlReport:
         #reportcontent = reportcontent.replace('<SUMMARYTARGETSIZE>', str(bed_file.bed_file(bedfilename).size()))
 
 
-
-
-
-
-
-
         #TODO Coverage per chromosome, add 'covperposition'.plot_dir[]
         chromosomeimages = ''
         for afile in self.sections['covperposition'].plot_dir:
@@ -206,7 +200,6 @@ class HtmlReport:
 
         else:
             reportcontent = reportcontent.replace('<SATURATIONCONTENT>', '\n').replace('depthlist', 'None')
-
 
 
         if 'gc_bias' in self.sections:
