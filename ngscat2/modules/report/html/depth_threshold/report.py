@@ -69,5 +69,5 @@ class Report():
 
         fig = go.Figure(data=data, layout=layout_comp)
         plotly.offline.plot(fig, filename=self.plot_dir,
-                            auto_open=False, config=dict(displaylogo=False, showlink=False, linktext=".", modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, show_link= False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
