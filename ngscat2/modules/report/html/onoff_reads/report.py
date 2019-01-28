@@ -149,7 +149,7 @@ class Report():
                 x=x,
                 y=yon,
                 hoverinfo='text',
-                hoverlabel=dict(font=dict(color=['black'] * len(x))),
+                #hoverlabel=dict(font=dict(color=['black'] * len(x))),
                 text=['Percentage on: ' + str(round(value,2)) + '%' for value in yon],
                 # mode='lines',
                 name='on target duplicates')
@@ -160,7 +160,7 @@ class Report():
                 x=x,
                 y=yoff,
                 hoverinfo='text',
-                hoverlabel=dict(font=dict(color=['black'])),
+                #hoverlabel=dict(font=dict(color=['black'])),
                 text=['Percentage off: ' + str(round(value,2)) + '%' for value in yoff],
                 name='off target duplicates')
             # marker=dict(color=colors[i]))

@@ -72,7 +72,7 @@ class Report():
             margin=go.layout.Margin(
                 l=60,
                 r=20,
-                b=30,
+                b=40,
                 t=50,
                 pad=4
             ),
@@ -107,7 +107,7 @@ class Report():
             margin=go.layout.Margin(
                 l=50,
                 r=10,
-                b=10,
+                b=40,
                 t=50,
                 pad=4
             ),
