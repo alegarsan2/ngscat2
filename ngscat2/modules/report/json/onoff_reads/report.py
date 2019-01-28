@@ -6,7 +6,7 @@ class Report():
 
     def report(self, reads_on_results):
 
-        with open(self.outdir + 'reads_on_results.json', 'w') as outfile:
+        with open(self.outdir + '/data/reads_on_results.json', 'w') as outfile:
             json.dump(reads_on_results, outfile)
 
 
