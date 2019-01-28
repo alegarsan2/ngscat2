@@ -39,7 +39,7 @@ class Report():
                 x=list(result['perccoveredposition'].keys()),
                 y=list(result['perccoveredposition'].values()),
                 hoverinfo='text',
-                hoverlabel=dict(font=dict(color=['black'])),
+                #hoverlabel=dict(font=dict(color=['black'])),
                 text=['Percentage:' + str(round(value, 2)) + '%' for value in list(result['perccoveredposition'].values())],
                 # mode='lines',
                 opacity=0.8,
