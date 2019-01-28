@@ -80,7 +80,7 @@ class Report():
 
         fig = go.Figure(data=traces, layout=layout_comp)
         plotly.offline.plot(fig, filename=self.plot_dir_hist,
-                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                            auto_open=False,  show_link= False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                                          showlink=False))
 
 

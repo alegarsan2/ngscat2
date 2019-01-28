@@ -115,7 +115,7 @@ class Report():
         fig = go.Figure(data=data,layout=layout_comp)
                         # layout=layout_comp)
         plotly.offline.plot(fig, filename=self.mainreporter.outdir + '/data/reads_on_target.html',
-                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                            auto_open=False, show_link= False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                                          showlink=False))
 
     def duplicates_plot(self, read_on_results):
@@ -175,7 +175,7 @@ class Report():
 
             fig = go.Figure(data=data, layout=layout_comp)
             plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/duplicates_' + str(i) + '.html',
-                                auto_open=False,
+                                auto_open=False, show_link= False,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                             showlink=False))
 

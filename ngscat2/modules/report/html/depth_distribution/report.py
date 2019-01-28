@@ -78,7 +78,7 @@ class Report():
 
         fig = go.Figure(data=data, layout=layout_comp)
         plotly.offline.plot(fig, filename= self.plot_dir_hist,
-                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
+                            auto_open=False, show_link= False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
     def target_distribution_boxplot(self, coveragelist, target_distribution_result):
         colors = ['rgb(0,102,0)', 'rgb(255,0,0)', 'rgb(102,178,255)', 'rgb(178,102,255)']
@@ -114,5 +114,5 @@ class Report():
         )
         fig = go.Figure(data=data, layout=layout_comp)
         plotly.offline.plot(fig, filename=self.plot_dir_boxplot,
-                            auto_open=False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
+                            auto_open=False, show_link= False, config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                                          showlink=False))

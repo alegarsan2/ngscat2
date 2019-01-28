@@ -41,7 +41,7 @@ class Report():
             #TODO como obtengo el output dir desde el mainreporter
             fig = go.Figure(data=traces, layout=layout_comp)
             plotly.offline.plot(fig, filename= self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html',
-                                auto_open=False,
+                                auto_open=False, show_link= False,
                                 config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
