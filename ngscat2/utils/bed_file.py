@@ -3,7 +3,7 @@ import os
 import subprocess
 
 # CHR_LENGTHS = '/usr/local/reference_genomes/human/human_g1k_v37.1-22XYM.genome'
-# TMP = '/tmp/'
+TMP = '/tmp/'
 # BEDTOOLS = '/usr/local/bedtools/bin/'
 
 
