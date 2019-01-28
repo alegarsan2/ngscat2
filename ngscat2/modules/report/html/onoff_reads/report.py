@@ -85,6 +85,7 @@ class Report():
                 y=list(bam['perconperchr'].values()),
                 hoverinfo='text',
                 #hoverlabel=dict(font=dict(color=['black'])),
+
                 text=['Percentage:' + str(round(value,2)) + '%' for value in list(bam['perconperchr'].values())],
                 # mode='lines',
                 opacity= 0.8,
@@ -97,7 +98,7 @@ class Report():
             title='Reads on target',
             hovermode='closest',
             barmode='group',
-            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig'),
+            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig', tickangle= 180),
             yaxis=dict(title='% on-target reads'),
             # shapes ={
             #     'type': 'line',
