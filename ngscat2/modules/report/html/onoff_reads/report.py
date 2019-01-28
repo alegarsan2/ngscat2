@@ -84,9 +84,10 @@ class Report():
                 x=list(bam['perconperchr'].keys()),
                 y=list(bam['perconperchr'].values()),
                 hoverinfo='text',
-                hoverlabel=dict(font=dict(color=['black'])),
+                #hoverlabel=dict(font=dict(color=['black'])),
                 text=['Percentage:' + str(round(value,2)) + '%' for value in list(bam['perconperchr'].values())],
                 # mode='lines',
+                opacity= 0.8,
                 name=bam['legend'],
                 marker=dict(color=colors[i]))
 
