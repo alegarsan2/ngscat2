@@ -6,6 +6,8 @@ import pysam
 import subprocess
 import array
 import numpy as np
+TMP = '/tmp/'
+
 try:
     import numpy
 except ImportError:
