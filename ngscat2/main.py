@@ -298,7 +298,7 @@ def generate_report(options, config):
 
     thresholdreporter = CompoundReporter([thresholdhtml, thresholdjson, thresholdxls])
 
-    mainpool.apply_async(DepthThresProcessor(options.coveragethresholds, config.getconfig()['warncoveragethreshold']).process,
+    mainpool.apply_async(DepthThresProcessor(options.coveragethresholds, config.getconfig()['warnbasescovered']).process,
                          args=(ns.coveragefiles,), callback=thresholdreporter.report).get()
 
     # Sensitivity:(Optional) Saturation
