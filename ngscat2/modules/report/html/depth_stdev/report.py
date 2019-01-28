@@ -115,7 +115,7 @@ class Report():
 
         fig = go.Figure(data=traces, layout=layout_comp)
         plotly.offline.plot(fig, filename= self.plot_dir_boxplot,
-                            auto_open=False, show_link= False,
+                            auto_open=False,  show_link= False,
                             config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud']))
 
 #TODO esta parte es la que va en el main para llamar a a esta funcion.
