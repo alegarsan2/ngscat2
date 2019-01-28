@@ -37,10 +37,10 @@ class Report():
         for i, result in enumerate(target_coverage_results):
             trace = go.Bar(
                 x=list(result['perccoveredposition'].keys()),
-                y=map(round(2), list(result['perccoveredposition'].values())),
+                y=list(result['perccoveredposition'].values()),
                 hoverinfo='text',
                 hoverlabel=dict(font=dict(color=['black'])),
-                text=['Percentage:' + str(value) + '%' for value in list(result['perccoveredposition'].values())],
+                text=['Percentage:' + str(round(value, 2)) + '%' for value in list(result['perccoveredposition'].values())],
                 # mode='lines',
                 name=coveragefiles[i].name.decode('utf-8').split('/')[-1],
                 marker=dict(color=colors[i],
