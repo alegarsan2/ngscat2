@@ -48,7 +48,7 @@ class Report():
                 x=result['histdata']['coveragepos'],
                 width=result['histdata']['width'],
                 hoverinfo='text',
-                hoverlabel=dict(font=dict(color=['black'])),
+                #hoverlabel=dict(font=dict(color=['black'])),
                 text=['Count: ' + str(value) + ('<br>') + 'Coverage: ' + str(result['histdata']['coveragepos'][i])
                       for i, value in enumerate(result['histdata']['numberread'])],
                 # mode='lines',
@@ -70,7 +70,7 @@ class Report():
             margin=go.layout.Margin(
                 l=50,
                 r=10,
-                b=20,
+                b=50,
                 t=50,
                 pad=8),
             legend= dict(bgcolor= 'rgba(0,0,0,0)')
@@ -107,7 +107,7 @@ class Report():
             margin=go.layout.Margin(
                 l=50,
                 r=10,
-                b=20,
+                b=50,
                 t=50,
                 pad=8
             ),
