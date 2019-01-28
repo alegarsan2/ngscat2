@@ -42,6 +42,7 @@ class Report():
                 hoverlabel=dict(font=dict(color=['black'])),
                 text=['Percentage:' + str(round(value, 2)) + '%' for value in list(result['perccoveredposition'].values())],
                 # mode='lines',
+                opacity=0.8,
                 name=coveragefiles[i].name.decode('utf-8').split('/')[-1],
                 marker=dict(color=colors[i],
                             line=dict(
