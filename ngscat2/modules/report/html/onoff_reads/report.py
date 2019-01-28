@@ -98,7 +98,7 @@ class Report():
             title='Reads on target',
             hovermode='closest',
             barmode='group',
-            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig', tickangle= 90),
+            xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig', tickangle= -90),
             yaxis=dict(title='% on-target reads'),
             # shapes ={
             #     'type': 'line',
