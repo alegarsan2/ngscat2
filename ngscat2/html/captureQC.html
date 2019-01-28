@@ -205,7 +205,7 @@
 							<a href="data/coverage_summary.xls" style="text-decoration: none">
 								<img src="img/xls_icon.png" />
 							</a>
-							<img src="img/ok.jpg" height=35px />
+							<img src="img/<TARGETBASESSTATUS>.jpg" height=35px />
 						</div>
 
 						<div class="image">
@@ -223,7 +223,7 @@
 							<p>
 								A typical target-enrichment NGS experiment results in ~90% of target-bases covered at coverage >=1x. This value tends to
 								decrease as the coverage threshold increases. How fast this percentage decreases with the coverage increment depends on
-								the specific experimental design/results. A warning is issued if the percentage of bases with coverage >= <SUMMARYCOVERAGETHRS>x is less than a 							6%
+								the specific experimental design/results. A warning is issued if the percentage of bases with coverage >= <SUMMARYCOVERAGETHRS>x is less than a <WARNBASESCOVERED>%
 								for any of the samples.
 							</p>
 						</fieldset>
@@ -262,12 +262,12 @@
 							<legend class="description">Stats</legend>
 							<p>
 								Overall percentage of reads on target:
-	<ul><li>/home/agarcia/PycharmProjects/ngscat/example2.bam: 67.3%</li>
+	<ul><li>/home/agarcia/PycharmProjects/ngscat/example2.bam: <PERCENTAGEONTARGET> </li>
 	</ul>
 							</p>
 							<p>
 								Overall enrichment:
-	<ul><li>/home/agarcia/PycharmProjects/ngscat/example2.bam: 5069.3</li>
+	<ul><li>/home/agarcia/PycharmProjects/ngscat/example2.bam: <ENRICHMENT> </li>
 	</ul>
 							</p>
 						</fieldset>
@@ -291,7 +291,7 @@
 							<a href="data/duplicates.xls" style="text-decoration: none">
 								<img src="img/xls_icon.png" />
 							</a>
-							<img src="img/ok.jpg" height=35px />
+							<img src="img/<DUPSTATUS>.jpg" height=35px />
 						</div>
 
 						<div class="image">
@@ -333,7 +333,7 @@
 	<!-						<a href="data/percentile.txt">
 								<img src="img/xls_icon.png" />
 							</a>
-							<img src="img/warning.jpg" height=35px />
+							<img src="img/<DISTRIBUTIONSTATUS>.jpg" height=35px />
 						</div>
 
 						<div class="image">
@@ -351,7 +351,7 @@
 								Distribution of coverage per target base (only bases with coverage >= 1x are shown on the left graph). The star symbol in the boxplot graph indicates the mean coverage.
 							</p>
 							<p>
-								Low-medium coverage experiments may present a mean coverage of ~40x. A warning is issued if mean coverage is below [x for any of the samples.
+								Low-medium coverage experiments may present a mean coverage of ~40x. A warning is issued if mean coverage is below <WARNMEANCOVERAGE>x for any of the samples.
 							</p>
 						</fieldset>
 					</li>
@@ -395,7 +395,7 @@
 							<a href="data/std_wexons.xls" style="text-decoration: none">
 								<img src="img/xls_icon.png" />
 							</a>
-							<img src="img/ok.jpg" height=35px />
+							<img src="img/<COVERAGESTDSTATUS>.jpg" height=35px />
 						</div>
 						<div class="image">
 							<!-- <img style="width: 60%; float: left;" src="data/std_distribution.png" />
@@ -424,7 +424,7 @@
 								distribution is, the more uniform the coverage is within target regions.
 							</p>
 							<p>
-								A warning is issued if normalized std is greater than 0.3 for any of the samples.
+								A warning is issued if normalized std is greater than <WARNSTD> for any of the samples.
 							</p>
 						</fieldset>
 					</li>
