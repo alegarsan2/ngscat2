@@ -49,10 +49,10 @@ from ngscat2.modules.report.html.gc_bias.report import Report as GcBiasHtml
 
 def parse_arguments():
     usage = """	
-       	************************************************************************************************************************************************************
+       	****************************************************************************************************************
        	Task: Assesses capture performance in terms of sensibility, specificity and uniformity of the coverage.
        	Output: An html report will be created at the path indicated with the --out option.
-       	************************************************************************************************************************************************************
+       	*****************************************************************************************************************
        	usage: %prog --bams <filename> --bed <filename> --out <path>  --reference <filename>  --tmp <path> --threads <integer>"""
 
     parser = optparse.OptionParser(usage)
@@ -159,6 +159,7 @@ def check_parameters(options, parser):
 
 
     #FIXME, lines down here commented for debugging
+
     # if ((os.path.isdir(options.outdir) or os.path.islink(options.outdir)) and (
     #         os.path.isdir(options.outdir + '/data') or os.path.islink(options.outdir + '/data')) and len(
     #         glob.glob(options.outdir + '/data/*_Ontarget_Coverage.html')) > 0):
@@ -202,7 +203,7 @@ def check_parameters(options, parser):
         print('ERROR: invalid values for --coveragethrs option. Please, provide a comma separated list of values without leaving spaces, e.g.: 1,2,10,20')
         sys.exit(1)
 
-    ## FIXME problably it is not going to be used
+    # FIXME problably it is not going to be used
 
 
 
@@ -214,7 +215,7 @@ def check_parameters(options, parser):
     return True
 
 
-#Class wrapper of different kinds of results for instance (onoffplots, onoffjson, onoffxls)
+# Class wrapper of different kinds of results for instance (onoffplots, onoffjson, onoffxls)
 class CompoundReporter:
     def __init__(self, reporters):
         self.reporters = reporters
@@ -223,20 +224,22 @@ class CompoundReporter:
         for report in self.reporters:
             report(*args)
 
+
 def generate_report(options, config):
-    #Directory generation, i
+
+    # Directory generation
     if not os.path.exists(options.outdir):
         os.makedirs(options.outdir)
         os.mkdir(options.outdir + '/data')
         os.mkdir(options.outdir + '/img')
     else:
-        shutil.rmtree(options.outdir)  # removes all the subdirectories!
+        # shutil.rmtree(options.outdir)  # removes all the subdirectories!
         os.makedirs(options.outdir)
         os.mkdir(options.outdir + '/data')
         os.mkdir(options.outdir + '/img')
 
-    #Bamfile object generation, if not sorted do it and(sequentally made, maybe no improvement due I/O limitations)
-    #Sorted and .bai Checking
+    # Bamfile object generation, if not sorted do it and(sequentally made, maybe no improvement due I/O limitations)
+    # Sorted and .bai Checking
     bamlist = []
     for bamdir in options.bams.split(','):
         bam = bam_file(bamdir)
@@ -288,9 +291,9 @@ def generate_report(options, config):
     # #Main reporter generator
     # mainReporter = HtmlReport(options.outdir, options)
 
-    #Metric reporter generator, main reporter will be passed as an argument
+    # Metric reporter generator, main reporter will be passed as an argument
 
-    #Sensitivity: Depth_Threshold OK
+    # Sensitivity: Depth_Threshold
 
     thresholdhtml = ThresholdHtml(mainReporter).report
     thresholdjson = ThresholdJson(options.outdir).report
@@ -303,25 +306,7 @@ def generate_report(options, config):
 
     # Sensitivity:(Optional) Saturation
 
-
-    # #Specificity: OnOffReport
-
-    # #FIXME pasar las rutas de los bams ordenados a  esta funcion, e instanciar de nuevo clase bamfile
-    # onoffhtml = OnOffHtml(mainReporter).report
-    # onoffjson = OnOffJson(options.outdir).report
-    # onoffxls = OnOffXls(options.outdir).report
-    #
-    # # onoffreporter = CompoundReporter([onoffhtml,onoffjson,onoffxls])
-    # # mainpool.apply_async(OnOffReadsProcessor().process, args=(bamlist, options.bed, onoffreporter.report)).get()
-    #
-    # onoffreporter = CompoundReporter([onoffhtml, onoffjson, onoffxls])
-    #
-    # mainpool.apply_async(OnOffReadsProcessor(config.getconfig()['maxduplicates'], config.getconfig()['warnontarget']).process,
-    #                      args=(bamlistdir, options.bed), callback=onoffreporter.report)
-
-
-
-    #Uniformity: Depth_distribution Coverage Distribution
+    # Uniformity: Depth_distribution Coverage Distribution
     distributionhtml = DistributionHtml(mainReporter).report
     distributionjson = DistributionJson(options.outdir).report
     distributionxls = DistributionXls(options.outdir).report
@@ -331,14 +316,14 @@ def generate_report(options, config):
     mainpool.apply_async(DepthDistrProcessor(config.getconfig()['distributionbins'], config.getconfig()['warnmeancoverage']).process,
                          args=(ns.coveragefiles,), callback=distributionreporter.report)
 
-    #Uniformity: depth_perposition Coverage_per_position
+    # Uniformity: depth_perposition Coverage_per_position
     perpositionHtml = PerpositionHtml(mainReporter).report
     perpositionreporter = CompoundReporter([perpositionHtml])
 
     mainpool.apply_async(DepthPerPositionProcessor(config.getconfig()['npointsperchrom']).process,
                          args=(ns.coveragefiles,), callback= perpositionreporter.report)
 
-    # #Uniformity: Standart deviation within regions
+    # Uniformity: Standart deviation within regions
     stdevhtml = StdHtml(mainReporter).report
     stdevjson = StdJson(options.outdir).report
     stdevxls = StdXls(options.outdir).report
@@ -352,8 +337,7 @@ def generate_report(options, config):
     mainpool.apply_async(RegionsWithZeroesProcessor, args= (ns.coveragefiles, zerocoveragereporter))
 
 
-
-    # #Uniformity(optional) GC Bias reference required
+    # Uniformity(optional): GC Bias reference required
     if options.reference is not None:
         gcbiashtml = GcBiasHtml(mainReporter).report
         gcbiasreporter = CompoundReporter([gcbiashtml])
