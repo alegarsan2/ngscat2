@@ -251,6 +251,7 @@ def generate_report(options, config):
     bamlistdir = [bam.filename.decode('utf-8') for bam in bamlist]
 
     # Creating the pool and designating number of workers
+
     mainpool = Pool(processes=options.nthreads)
     # Main reporter generator
     mainReporter = HtmlReport(options.outdir, options)
