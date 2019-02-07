@@ -6,13 +6,13 @@ import os
 import json
 import shutil
 
-from ngscat2.utils.getpaths import get_project_root
+from ngscat2.misc.getpaths import get_project_root
 from multiprocessing import Manager
 from multiprocessing import Pool
 from multiprocessing import cpu_count
 
-from ngscat2.utils.bam_file import bam_file
-from ngscat2.utils import bed_file
+from ngscat2.misc.bam_file import bam_file
+from ngscat2.misc import bed_file
 from ngscat2.modules.report.html.HtmlReport import HtmlReport
 
 from ngscat2.modules.metric.onoff_reads.metric import OnOffReadsProcessor

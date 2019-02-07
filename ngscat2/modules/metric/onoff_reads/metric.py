@@ -1,5 +1,5 @@
-from ngscat2.utils import bed_file
-from ngscat2.utils import bam_file
+from ngscat2.misc import bed_file
+from ngscat2.misc import bam_file
 
 
 # due to pysam implementation and restrictions, we should make this

@@ -70,4 +70,4 @@ class StdevProcessor:
                  ('min', float(minimum)),
                  ('mean', mean),
                  ('median', median),
-                 ('status', 'ok' if mean >= warnthreshold else 'warning')])
+                 ('status', 'ok' if mean <= warnthreshold else 'warning')])

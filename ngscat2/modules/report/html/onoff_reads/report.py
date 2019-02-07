@@ -81,7 +81,7 @@ class Report():
         #layout_comp = []
         for i, bam in enumerate(read_on_results['results']):
             trace = go.Bar(
-                x=list(bam['perconperchr'].keys()),
+                x=[str(x) for x in bam['perconperchr'].keys()],
                 y=list(bam['perconperchr'].values()),
                 hoverinfo='text',
                 #hoverlabel=dict(font=dict(color=['black'])),
@@ -98,6 +98,7 @@ class Report():
             title='Reads on target',
             hovermode='closest',
             barmode='group',
+
             xaxis=dict(showticklabels=True, showgrid=True, title='Chromosome/Contig', tickangle= -90),
             yaxis=dict(title='% on-target reads'),
             # shapes ={

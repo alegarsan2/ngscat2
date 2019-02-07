@@ -65,8 +65,8 @@ class Report():
             title='Histogram',
             hovermode='closest',
             barmode='group',
-            xaxis=dict(showticklabels=True, showgrid=True, title='Coverage'),
-            yaxis=dict(title='Count'),
+            xaxis=dict(showticklabels=True, showgrid=True, title='Coverage', tick0=1),
+            yaxis=dict(title='Count',tick0=1),
             margin=go.layout.Margin(
                 l=50,
                 r=10,

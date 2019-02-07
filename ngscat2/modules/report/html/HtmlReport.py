@@ -1,5 +1,5 @@
 import shutil
-from ngscat2.utils.getpaths import get_project_root
+from ngscat2.misc.getpaths import get_project_root
 import time
 import os
 

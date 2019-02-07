@@ -16,7 +16,7 @@ except ImportError:
 
 sys.path.append('/home/agarcia/PycharmProjects/ngscat2')
 
-from ngscat2.utils import bed_file, coverage_file
+from ngscat2.misc import bed_file, coverage_file
 
 class bam_file(pysam.Samfile):
 
@@ -115,17 +115,17 @@ class bam_file(pysam.Samfile):
         return totalsize
 
     def sort_bam(self):
-        """*******************************************************************************************************************************************
+        """*************************************************************************************************************
         JPFLORIDO.
         Task:  Sort BAM file by position and creat the corresponding index
         Inputs: BAM file to be sorted
         Outputs: Sorted file (object) with the corresponding index created
-        *******************************************************************************************************************************************"""
+        ****************************************************************************************************************"""
         pid = str(os.getpid())
         print('Sorting BAM according to position...')
         sortedBAMfilename = TMP + pid + os.path.basename(self.filename.decode('utf-8')) + ".sorted" + '.bam'
         print(sortedBAMfilename)
-        #		self.run('samtools sort '+self.filename+' '+sortedBAMfilename)
+
         pysam.sort("-o", sortedBAMfilename, self.filename.decode('utf-8'))
 
         pysam.index(sortedBAMfilename)
