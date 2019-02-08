@@ -81,7 +81,7 @@ class Report():
         #layout_comp = []
         for i, bam in enumerate(read_on_results['results']):
             trace = go.Bar(
-                x=[str(x) for x in bam['perconperchr'].keys()],
+                x=[x if 'chr' in x else 'chr' + x for x in bam['perconperchr'].keys()],
                 y=list(bam['perconperchr'].values()),
                 hoverinfo='text',
                 #hoverlabel=dict(font=dict(color=['black'])),
