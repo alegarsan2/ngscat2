@@ -10,6 +10,7 @@ class Report():
         self.outdir = mainreporter.outdir
         self.plot_dir = []
         self.mainreporter = mainreporter
+
     def report(self, gclist, meanlists, coveragefiles):
         ymax = max(max(meanlist) for meanlist in meanlists)
         ymin = min(min(meanlist) for meanlist in meanlists)
@@ -38,7 +39,6 @@ class Report():
             self.plot_dir.append(self.outdir + '/data/gcbias_plot'+ str(indx) +'.html')
         self.mainreporter.addsection('gc_bias', self)
 
-
     def kde_scipy(self, vals1, vals2, a, b, c, d, N):
         # vals1, vals2 are the values of two variables (columns)
         # (a,b) interval for vals1; usually larger than (np.min(vals1), np.max(vals1))
@@ -64,10 +64,11 @@ class Report():
                 z=Z,
                 x=x,
                 y=y,
-                colorscale = colorsc,
+                colorscale=colorsc,
                 # reversescale=True,
                 opacity=0.9,
-                contours= dict(showlines = False),
+                contours= dict(showlines=False),
+                colorbar= dict(showticklabels=False, title='Density')
             )]
 
         layout_comp = go.Layout(
@@ -100,4 +101,4 @@ class Report():
         plotly.offline.plot(fig, filename= outdir,
                             auto_open=False, show_link= False,
                             config=dict(displaylogo=False, modeBarButtonsToRemove=['sendDataToCloud'],
-                                        showlink=False))
+                            showlink=False))

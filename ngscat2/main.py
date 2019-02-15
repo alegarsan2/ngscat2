@@ -343,7 +343,7 @@ def generate_report(options, config):
         gcbiashtml = GcBiasHtml(mainReporter).report
         gcbiasreporter = CompoundReporter([gcbiashtml])
 
-        mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference), callback= gcbiasreporter.report)
+        mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference), callback=gcbiasreporter.report)
 
 
     #Waits until all threads are finished
@@ -389,7 +389,7 @@ def main():
         #generate_json(os.path.dirname(sys.argv[0]))
         config_folder = get_project_root()
         config_filepath = os.path.join(config_folder, "config.json")
-        config =  ConfigArgs(config_filepath)
+        config =ConfigArgs(config_filepath)
         #configargs = ConfigArgs(os.path.dirname(sys.argv[0]) + 'config.json')
         generate_report(options, config)
 
