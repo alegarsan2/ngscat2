@@ -42,9 +42,9 @@ class Report():
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
 
-            self.coverageperthres(coveragefiles, warnregionsize, warnthreshold)
+        self.coverageperthres(coveragefiles, warnregionsize, warnthreshold)
 
-            self.mainreporter.addsection('covperposition', self)
+        self.mainreporter.addsection('covperposition', self)
 
     def getsummary(self):
         # Attribute encapsulation
