@@ -4,16 +4,12 @@ import numpy as np
 
 class Report():
     def __init__(self, mainreporter):
-        #En este caso no hace falta nada, unicamente el outdir por lo que hay que
-        #pasarle el mainreporter al report.
 
         self.mainreporter = mainreporter
         self.plot_dir = []
+        self.summary = {}
 
-
-    def report(self, coveragefiles, npoints):
-
-    # npoint,  warnregionsize = 100, warnthreshold=6):
+    def report(self, coveragefiles, npoints, warnregionsize=100, warnthreshold=6):
 
         chromosomenames = coveragefiles[0].getChromosomeNames()
         for chromosomeName in chromosomenames:
@@ -46,7 +42,13 @@ class Report():
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
 
+            self.coverageperthres(coveragefiles, warnregionsize, warnthreshold)
+
             self.mainreporter.addsection('covperposition', self)
+
+    def getsummary(self):
+        # Attribute encapsulation
+        return self.summary
 
     def computeWindowSize(self, coverage, chromosomename, npoints):
         ''' Compute window size
@@ -138,3 +140,26 @@ class Report():
         )
 
         return trace
+
+    def coverageperthres(self, coveragefiles, warnregionsize, warnthreshold):
+        warning = False
+        warncounter = 0
+        maxconsecutivelow = 0
+        for cover in coveragefiles[0].coverages:
+            if cover <= warnthreshold:
+                warncounter += 1
+            else:
+                if warncounter > 0:
+                    maxconsecutivelow = max(maxconsecutivelow, warncounter)
+                if warncounter > warnregionsize:
+                    warning = True
+
+        self.summary['status'] = 'warning' if warning else 'ok'
+        self.summary['maxconsecutivelow'] = maxconsecutivelow
+        self.summary['warnregionseize'] = warnregionsize
+        self.summary['warnthreshold'] = warnthreshold
+
+
+
+
+

@@ -329,16 +329,18 @@ def generate_report(options, config):
     stdevjson = StdJson(options.outdir).report
     stdevxls = StdXls(options.outdir).report
 
-    stdevreporter = CompoundReporter([stdevhtml,stdevjson,stdevxls])
+    stdevreporter = CompoundReporter([stdevhtml, stdevjson, stdevxls])
     mainpool.apply_async(StdevProcessor(config.getconfig()['warnstd']).process,
                          args=(ns.coveragefiles,), callback= stdevreporter.report)
 
     #Uniformity: Nocoverage txt
+
     zerocoveragereporter = ZeroCoverageTxt(options.outdir).report
     mainpool.apply_async(RegionsWithZeroesProcessor, args= (ns.coveragefiles, zerocoveragereporter))
 
 
     # Uniformity(optional): GC Bias reference required
+
     if options.reference is not None:
         gcbiashtml = GcBiasHtml(mainReporter).report
         gcbiasreporter = CompoundReporter([gcbiashtml])
@@ -389,7 +391,7 @@ def main():
         #generate_json(os.path.dirname(sys.argv[0]))
         config_folder = get_project_root()
         config_filepath = os.path.join(config_folder, "config.json")
-        config =ConfigArgs(config_filepath)
+        config = ConfigArgs(config_filepath)
         #configargs = ConfigArgs(os.path.dirname(sys.argv[0]) + 'config.json')
         generate_report(options, config)
 
