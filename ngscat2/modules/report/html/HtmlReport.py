@@ -18,6 +18,7 @@ class HtmlReport:
     def addsection(self, name, reporter):
         self.sections[name] = reporter
     #FIXME don't use this argument, try to by pass throught a report class
+
     def report(self, options):
 
         #Copy all data required for html report
@@ -45,15 +46,15 @@ class HtmlReport:
 
         # *************** Input parameters ***********************************
         #FIXME pass arguments throught another data type for instance Dictionary instead Options object
-        reportcontent = reportcontent.replace('bamfilename',options.bams)
-        reportcontent = reportcontent.replace('bedfilename',options.bed)
+        reportcontent = reportcontent.replace('bamfilename', options.bams)
+        reportcontent = reportcontent.replace('bedfilename', options.bed)
         reportcontent = reportcontent.replace('reportdate', time.ctime())
         reportcontent = reportcontent.replace('coveragethrs', str(options.coveragethresholds))
-        reportcontent = reportcontent.replace('reference',options.reference if options.reference is not None else "No reference")
+        reportcontent = reportcontent.replace('reference', options.reference if options.reference is not None else "No reference")
         #reportcontent = reportcontent.replace('saturationcurve', options.saturation)
         reportcontent = reportcontent.replace('saturationcurve', 'N')
         reportcontent = reportcontent.replace('nthreads', str(options.nthreads))
-        reportcontent = reportcontent.replace('tmpdir',options.tmp)
+        reportcontent = reportcontent.replace('tmpdir', options.tmp)
 
 
         # *************** Result summary ***********************************
@@ -73,9 +74,10 @@ class HtmlReport:
                 self.sections['onoff'].getsummary()['percoffduplicates'][i]['2x']) + '% </td>'
 
             summaryrows += '<td class="table-cell">%.1fx' % self.sections['distribution'].getsummary()['mean'][i] + '</td>\n'
+
             #Not added in this version
             summaryrows += '<td class="table-cell">%d consecutive bases<br>with coverage <= <WARNCOVERAGETHRESHOLD></td>\n' % (
-            20)
+                self.sections['covperposition'].getsummary()['maxconsecutivelow'][i])
 
             if 'coveragecorr' in self.sections:
                 summaryrows += '<td class="table-cell">%.2f</td>\n' % corr.value
@@ -171,13 +173,12 @@ class HtmlReport:
 
 
         #FIXME esta parte no vá en el report final, numero de veces que está 0 warning
+        if 'covperposition' in self.sections:
 
-        # reportcontent = reportcontent.replace('<WARNCOVERAGEREGION>', str(config.warncoverageregion))
-        # reportcontent = reportcontent.replace('<WARNCOVERAGETHRESHOLD>', str(config.warncoveragethreshold))
-        # if (throughtarget_status.value):
-        #     reportcontent = reportcontent.replace('<COVERAGETHROUGHTARGETSTATUS>', 'ok')
-        # else:
-        #     reportcontent = reportcontent.replace('<COVERAGETHROUGHTARGETSTATUS>', 'warning')
+            reportcontent = reportcontent.replace('<WARNCOVERAGEREGION>', str(self.sections['covperposition'].getsummary()['warnregionsize']))
+            reportcontent = reportcontent.replace('<WARNCOVERAGETHRESHOLD>', str(self.sections['covperposition'].getsummary()['warnthreshold']))
+            reportcontent = reportcontent.replace('<COVERAGETHROUGHTARGETSTATUS>', str(self.sections['covperposition'].getsummary()['status'][0]))
+
 
 
         if 'stdev' in self.sections:

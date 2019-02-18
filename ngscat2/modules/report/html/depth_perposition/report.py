@@ -42,6 +42,7 @@ class Report():
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
 
+
         self.coverageperthres(coveragefiles, warnregionsize, warnthreshold)
 
         self.mainreporter.addsection('covperposition', self)
@@ -78,7 +79,6 @@ class Report():
 
     def renderCoveragePerChr(self, coverage, chromosomename, windowsize):
         '''Calculate traces and values per chromosome'''
-
 
         y = []
         error = []
@@ -145,18 +145,27 @@ class Report():
         warning = False
         warncounter = 0
         maxconsecutivelow = 0
-        for cover in coveragefiles[0].coverages:
-            if cover <= warnthreshold:
-                warncounter += 1
-            else:
-                if warncounter > 0:
-                    maxconsecutivelow = max(maxconsecutivelow, warncounter)
-                if warncounter > warnregionsize:
-                    warning = True
+        maxconsecutivelowlist = []
+        warninglist = []
 
-        self.summary['status'] = 'warning' if warning else 'ok'
-        self.summary['maxconsecutivelow'] = maxconsecutivelow
-        self.summary['warnregionseize'] = warnregionsize
+        for coveragefile in coveragefiles:
+            for cover in coveragefile.coverages:
+                if cover <= warnthreshold:
+                    warncounter += 1
+
+                else:
+                    if warncounter > 0:
+                        maxconsecutivelow = max(maxconsecutivelow, warncounter)
+                    if warncounter > warnregionsize:
+                        warning = True
+                    warncounter = 0
+
+            maxconsecutivelowlist.append(maxconsecutivelow - 1 if maxconsecutivelow != 0 else 0)
+            warninglist.append('warning' if warning else 'ok')
+
+        self.summary['status'] = warninglist
+        self.summary['maxconsecutivelow'] = maxconsecutivelowlist
+        self.summary['warnregionsize'] = warnregionsize
         self.summary['warnthreshold'] = warnthreshold
 
 

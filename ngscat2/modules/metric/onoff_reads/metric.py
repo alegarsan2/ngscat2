@@ -75,8 +75,8 @@ class OnOffReadsProcessor():
                 enrichment.append((nread[i] * 1000.0 / targetsize) / ((tread[i] - nread[i]) * 1000.0 / (bamlist[0].mappingsize() - targetsize)))
 
             percontarget.append(nread[i]*100.0/tread[i])
-            retonduplicates.append(sum(onduplicates[i]) * 100.0 / tread[i])
-            retoffduplicates.append(sum(offduplicates[i]) * 100.0 / tread[i])
+            retonduplicates.append(sum(onduplicates[i][1:]) * 100.0 / tread[i])
+            retoffduplicates.append(sum(offduplicates[i][1:]) * 100.0 / tread[i])
 
             #Avoid 0 division
             perconperchr.append({key: (onperchr[i][key] * 100.0/totalperchr[i][key] if totalperchr[i][key] > 0 else 0) for key in onperchr[i]})
