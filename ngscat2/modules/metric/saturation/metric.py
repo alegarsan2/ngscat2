@@ -8,7 +8,6 @@ class DepthDistrProcessor():
 
     def process(self, coveragefiles, callback):
 
-        #FIXME poner de warnthreshold 40 por defecto
         # ntotal_positions = [0] * len(coveragefiles)
         # covered_positions_per_depth = [[0 for x in range(len(coveragethreshold))] for y in range(len(coveragefiles))]
         # covered_position = []  # list containing dictionary number of position with more depth than threshold
@@ -47,9 +46,6 @@ class DepthDistrProcessor():
         # a = print()
         # callback(coveragefiles, results)
 
-
-
-# FIXME no hace falta poner bamlist ni bedfile, está incluida esa info en coverage.name y coverage.bedfilename
         results = []
         histlist = []
         percentile = []
@@ -65,7 +61,7 @@ class DepthDistrProcessor():
 
             #Non zero indexs
             indnonzero = np.nonzero(coveragefile.coverages)
-            #FIXME no existe normalizacion de tamaño de bins, solo toma segun el tamaño de la muestra(como es sin 0) QUitar 0??
+
             number_read, bin_edges = np.histogram(coveragefile.coverages[indnonzero], bins= self.bins)
             bin_edges = bin_edges.tolist()
 
@@ -90,7 +86,7 @@ class DepthDistrProcessor():
             minimum.append(np.min(coveragefile.coverages))
             mean.append(coveragefile.coverages.mean())
             zerocov.append(len(coveragefile.coverages) - len(indnonzero))
-            #TODO ver que parametros metemos en el JSON
+
         for i in range(len(coveragefile)):
             results.append(dict(
                 [('bamfilename', coveragefiles[i].filename.decode('utf-8')),

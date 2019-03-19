@@ -9,7 +9,7 @@ class Report():
         self.plot_dir = []
         self.summary = {}
 
-    def report(self, coveragefiles, npoints, warnregionsize=100, warnthreshold=6):
+    def report(self, coveragefiles, npoints, warnregionsize, warnthreshold):
 
         chromosomenames = coveragefiles[0].getChromosomeNames()
         for chromosomeName in chromosomenames:
@@ -42,9 +42,7 @@ class Report():
                                             showLink=False))
             self.plot_dir.append(self.mainreporter.outdir + '/data/' + chromosomeName + '_Ontarget_Coverage.html')
 
-
         self.coverageperthres(coveragefiles, warnregionsize, warnthreshold)
-
         self.mainreporter.addsection('covperposition', self)
 
     def getsummary(self):

@@ -13,6 +13,9 @@ from multiprocessing import cpu_count
 
 from ngscat2.misc.bam_file import bam_file
 from ngscat2.misc import bed_file
+from ngscat2.misc import bedgraph_file
+
+
 from ngscat2.modules.report.html.HtmlReport import HtmlReport
 
 from ngscat2.modules.metric.onoff_reads.metric import OnOffReadsProcessor
@@ -45,6 +48,9 @@ from ngscat2.modules.report.txt.zero_coverage.report import Report as ZeroCovera
 
 from ngscat2.modules.metric.gc_bias.metric import GcBiasProcessor
 from ngscat2.modules.report.html.gc_bias.report import Report as GcBiasHtml
+
+from ngscat2.modules.report.txt.off_bed.report import Report as OffBed
+
 
 
 def parse_arguments():
@@ -238,7 +244,7 @@ def generate_report(options, config):
         os.mkdir(options.outdir + '/data')
         os.mkdir(options.outdir + '/img')
 
-    # Bamfile object generation, if not sorted do it and(sequentally made, maybe no improvement due I/O limitations)
+    # Bamfile object generation, if not sorted do it and (sequentally made, maybe no improvement due I/O limitations)
     # Sorted and .bai Checking
     bamlist = []
     for bamdir in options.bams.split(','):
@@ -250,9 +256,9 @@ def generate_report(options, config):
         bamlist.append(bamsorted)
     bamlistdir = [bam.filename.decode('utf-8') for bam in bamlist]
 
-    # Creating the pool and designating number of workers
-
+    # Creating the pool and designating number of worker
     mainpool = Pool(processes=options.nthreads)
+
     # Main reporter generator
     mainReporter = HtmlReport(options.outdir, options)
 
@@ -277,7 +283,7 @@ def generate_report(options, config):
     #TODO arreglar bedgraphs
     coveragefiles = []
     for bam in bamlist:
-        cover,_ = bam.myCoverageBed(options.bed)
+        cover, _ = bam.myCoverageBed(options.bed, bedGraphFile=mainReporter.outdir)
         coveragefiles.append(cover)
 
     del bamlist
@@ -321,8 +327,8 @@ def generate_report(options, config):
     perpositionHtml = PerpositionHtml(mainReporter).report
     perpositionreporter = CompoundReporter([perpositionHtml])
 
-    mainpool.apply_async(DepthPerPositionProcessor(config.getconfig()['npointsperchrom']).process,
-                         args=(ns.coveragefiles,), callback= perpositionreporter.report)
+    mainpool.apply_async(DepthPerPositionProcessor(config.getconfig()['npointsperchrom'], config.getconfig()['warncoverageregion'], config.getconfig()['warncoveragethreshold']).process,
+                         args=(ns.coveragefiles,), callback=perpositionreporter.report)
 
     # Uniformity: Standart deviation within regions
     stdevhtml = StdHtml(mainReporter).report
@@ -338,6 +344,8 @@ def generate_report(options, config):
     zerocoveragereporter = ZeroCoverageTxt(options.outdir).report
     mainpool.apply_async(RegionsWithZeroesProcessor, args=(ns.coveragefiles, zerocoveragereporter))
 
+
+
     # Uniformity(optional): GC Bias reference required
 
     if options.reference is not None:
@@ -346,6 +354,9 @@ def generate_report(options, config):
 
         mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference), callback=gcbiasreporter.report)
 
+    # Bedfiles off
+    offbedreporter = OffBed(options.outdir)
+    mainpool.apply_async(offbedreporter.report, args=(config.getconfig()['offtargetoffset'], config.getconfig()['offtargetthreshold'], options.bed)).get()
 
     #Waits until all threads are finished
     mainpool.close()
@@ -356,22 +367,25 @@ def generate_report(options, config):
     mainReporter.report(options)
 
 
-# #TODO gnerate json with config arguments.
-# def generate_json(outdir):
-#
-#     config = dict([('warnbasescovered', 90),
-#                    ('warnsaturation',1e-5 ),
-#                    ('warnontarget', 80),
-#                    ('maxduplicates', 5),
-#                    ('warnmeancoverage',40),
-#                    ('warncoveragethreshold',6),
-#                    ('warncoveragecorrelation',0.9),
-#                    ('warnstd',0.3),
-#                    ('npointsperchrom', 50),
-#                    ('distributionbins', 40)
-#                    ])
-#     with open(outdir + 'config.json', 'w') as config_json:
-#         json.dump(config, config_json)
+#TODO gnerate json with config arguments.
+def generate_json(outdir):
+
+    config = dict([('warnbasescovered', 90),
+                   ('warnsaturation',1e-5 ),
+                   ('warnontarget', 80),
+                   ('maxduplicates', 5),
+                   ('warnmeancoverage',40),
+                   ('warncoveragethreshold',6),
+                   ('warncoveragecorrelation',0.9),
+                   ('warnstd',0.3),
+                   ('warncoverageregion',0.3),
+                   ('npointsperchrom', 50),
+                   ('distributionbins', 40),
+                   ("offtargetoffset", 1000),
+                   ("offtargetthreshold", 15)
+                   ])
+    with open(outdir + 'config.json', 'w') as config_json:
+        json.dump(config, config_json)
 
 class ConfigArgs:
     def __init__(self, configdir):
@@ -385,9 +399,8 @@ def main():
 
     options, args, parser = parse_arguments()
     if check_parameters(options, parser):
-
         #TODO load the config json
-        #generate_json(os.path.dirname(sys.argv[0]))
+        # generate_json(os.path.dirname(sys.argv[0]))
         config_folder = get_project_root()
         config_filepath = os.path.join(config_folder, "config.json")
         config = ConfigArgs(config_filepath)

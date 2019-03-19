@@ -1,7 +1,7 @@
 
 import os
 import subprocess
-
+from ngscat2.misc import region
 # CHR_LENGTHS = '/usr/local/reference_genomes/human/human_g1k_v37.1-22XYM.genome'
 TMP = '/tmp/'
 # BEDTOOLS = '/usr/local/bedtools/bin/'
@@ -69,7 +69,7 @@ class bed_file:
 
             # Current coordinates are added to current chromosome. >>>> WARNING: check coordinates accoridng to "base" argument <<<<<<<<<<<<
             self.chrs[parts[0]].append((int(parts[1]) + initOffset, int(parts[2]) + endOffset))
-    #			pbar.update(i+1)
+    #		pbar.update(i+1)
     #		fd.close()
     #		pbar.finish()
 
@@ -354,3 +354,46 @@ class bed_file:
         fd.close()
         print('Done')
 
+
+    def extendnoref(self, n, fileout=None):
+        """*******************************************************************************************************************************************
+        Task: generates a new bed file in which regions of this bed are extended +-n bases.
+        Inputs:
+            n: integer with the number of bases to extend.
+            fileout: string containing the full path to the new bed file.
+        Outputs: a new bed file will be created named fileout. In case fileout is not provided, a new file will be created named with the prefix of
+            self.filename and ended in .extended.bed
+        *******************************************************************************************************************************************"""
+
+        # If an output filename is not provided generates one
+        if fileout is None:
+            fileout = self.filename.replace('.bed', '.extended' + str(n) + '.bed')
+
+        # Each region in each line is extended +-n bases
+        fd = open(self.filename)
+        fdw = open(fileout, 'w')
+        for line in fd:
+            parts = line.split('\t')
+            fdw.write(
+                parts[0] + '\t' + str(max(0, int(parts[1]) - n)) + '\t' + str(int(parts[2]) + n) + '\n')
+        fd.close()
+        fdw.close()
+
+        return bed_file(fileout)
+
+    def get_region(self):
+        """************************************************************************************************************************************************************
+        Task: return a list of regions with all intervals
+        Output:
+            regions: list of regions
+        ************************************************************************************************************************************************************"""
+
+        fd = open(self.filename)
+        regions = []
+        for line in fd:
+            aline = line.replace('\n', '').split('\t')
+            # new region
+            r = region.region(aline[0], aline[1], aline[2])
+            regions.append(r)
+
+        return regions

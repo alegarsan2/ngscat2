@@ -2,7 +2,6 @@ import plotly.graph_objs as go
 import plotly
 import numpy as np
 class Report():
-    #FIXME como puedo acceder al outdir del  main report sin pasarle el mainreport al report como atributo o como entrada.
     def __init__(self, mainreporter):
         self.mainreporter = mainreporter
 

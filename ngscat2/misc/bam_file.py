@@ -129,7 +129,7 @@ class bam_file(pysam.Samfile):
         pysam.sort("-o", sortedBAMfilename, self.filename.decode('utf-8'))
 
         pysam.index(sortedBAMfilename)
-
+        pysam.AlignedRea
         return bam_file(sortedBAMfilename)
 
     # def myCoverageBed(self, target, numberReads=None, writeToFile=None, executiongranted=None, tmpdir=None,
@@ -433,7 +433,7 @@ class bam_file(pysam.Samfile):
 
 
     def myCoverageBed(self, target, numberReads=None, tmpdir=None,
-                      bedGraphFile=None):
+                      bedGraphFile= None):
         """*************************************************************************************************************
                 JPFLORIDO
                 Task:  Custom method equivalent to bedtool's coverage bed
@@ -543,8 +543,6 @@ class bam_file(pysam.Samfile):
                     totalPositions_end = len(selectedPositions_end)
 
 
-
-
                     # First iteration is done manually
                     positionArray.append(selectedPositions_init[0])  # Init position of the first read
                     coverageArray.append(1)  # A single read (coverage=1)
@@ -591,20 +589,21 @@ class bam_file(pysam.Samfile):
                     numPositions = len(positionArray)
 
                     # Create a bedgraph with coverage per position for all reads contained in the current chromosome
-                    if (bedGraphFile != None):
-                        extension = '.'
-                        onlyName = os.path.basename(bedGraphFile)
-                        components = onlyName.split(extension)
-                        prefixFile = extension.join(components[:-1])
-                        newFileName = prefixFile + '.' + str(currentChromosome) + '.' + components[-1]
-                        if (len(os.path.dirname(bedGraphFile)) > 0):
-                            newFileNameFULL = os.path.dirname(bedGraphFile) + '/' + newFileName
-                        else:
-                            newFileNameFULL = newFileName
+                    if bedGraphFile != None:
 
+                        extension = '.'
+                        #onlyName = bedGraphFile
+                        #components = onlyName.split(extension)
+                        #prefixFile = extension.join(components[:-1])
+                        #newFileName = prefixFile + '.' + str(currentChromosome) + '.' #+ components[-1]
+
+                        filename = self.filename.decode("utf-8").split("/")[-1].split(".")[0]
+                        newFileName ='.' + filename + '.' + str(currentChromosome)
+
+                        newFileNameFULL =bedGraphFile+ "/" + newFileName
                         fdw_bedGraph = open(newFileNameFULL, 'w')
-                        fdw_bedGraph.write('track type=bedGraph name=coverage_chr_' + str(currentChromosome) + str(self.filename)
-                                           + '" description="coverage per position for ' + str(self.filename) + ' chromosome ' +
+                        fdw_bedGraph.write('track type=bedGraph name=coverage_' + str(currentChromosome) + filename
+                                           + '" description="coverage per position for ' + filename + ' chromosome ' +
                                            str(currentChromosome) + '"\n')
 
                         positionArray_bedGraph = positionArray - 1  # BED GRAPH displays in base 1, although data must use 0-base indexing (http://genome.ucsc.edu/FAQ/FAQtracks#tracks1). See format of bedgraph http://genome.ucsc.edu/goldenPath/help/bedgraph.html
@@ -648,36 +647,36 @@ class bam_file(pysam.Samfile):
                 readsAfterExonBeg = False  # Whether there are reads after the starting position of the exon ##NEW
 
                 # Check if change in coverage from the previous iteration is before exon_init. If not, move one position back so that previous coverage value is recovered
-                if (indexCoverage > 0 and indexCoverage < numPositions and positionArray[nextPositionChange] > exon_init):
+                if indexCoverage > 0 and indexCoverage < numPositions and positionArray[nextPositionChange] > exon_init:
                     indexCoverage = indexCoverage - 1
 
-                if (indexCoverage < numPositions and positionArray[indexCoverage] > exon_init and positionArray[
-                    indexCoverage] <= exon_end):  # There are reads in the exon, but the first read starts after the beginning of the exon
+                if indexCoverage < numPositions and positionArray[indexCoverage] > exon_init and positionArray[
+                    indexCoverage] <= exon_end:  # There are reads in the exon, but the first read starts after the beginning of the exon
                     startPosition = indexCoverage
                     readsAfterExonBeg = True
                 else:  # Reads start before the beginning of the exon
-                    while (indexCoverage < numPositions and positionArray[indexCoverage] <= exon_init):
+                    while indexCoverage < numPositions and positionArray[indexCoverage] <= exon_init:
                         indexCoverage += 1
                     startPosition = indexCoverage - 1
 
 
 
-                if (indexCoverage != previousIndexCoverage):
+                if indexCoverage != previousIndexCoverage:
                     thereAreReads = True
                 # Search for the first position that matches with the end of currentExon
-                while (indexCoverage < numPositions and positionArray[indexCoverage] <= exon_end):
+                while indexCoverage < numPositions and positionArray[indexCoverage] <= exon_end:
                     indexCoverage += 1
                 endPosition = indexCoverage - 1
 
                 nextPositionChange = indexCoverage  # positionArray[indexCoverage] contains next position after exon_end in which coverage changes
 
-                if (endPosition != startPosition or thereAreReads):  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
+                if endPosition != startPosition or thereAreReads:  # Puede darse el caso de que un exon este en una sola coordenada de positionArray -> tenerlo en cuenta!!!!
 
                     keys = range(exon_init, exon_end + 1)
                     dicExon = dict(zip(keys, [-1] * len(keys)))
 
                     currentPositionArray = positionArray[startPosition:(endPosition + 1)]
-                    if (not readsAfterExonBeg):
+                    if not readsAfterExonBeg:
                         currentPositionArray[0] = exon_init
                     else:  # If reads after after exon_init, place a zero coverage to the beginning of the exon
                         dicExon[exon_init] = 0
@@ -691,8 +690,7 @@ class bam_file(pysam.Samfile):
                     for currentKey in sorted(dicExon.keys()):
                         jdxregion += 1
 
-                        if (dicExon[currentKey] == -1):  # Take into account the coverage of the last position (key) that has coverage
-
+                        if dicExon[currentKey] == -1:  # Take into account the coverage of the last position (key) that has coverage
                             covlist.append(dicExon[previousKey])
 
                         else:
@@ -737,7 +735,7 @@ class bam_file(pysam.Samfile):
 
 
             coveragefile.chromosomes.append(chromosome)
-        coveragefile.coverages = np.array(covertotal ,dtype= np.uint32)
+        coveragefile.coverages = np.array(covertotal, dtype= np.uint32)
 
         del positionArray
         gc.collect()
