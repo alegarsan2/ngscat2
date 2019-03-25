@@ -50,7 +50,7 @@ class bedgraph_file:
         reading = True  # boolean to control while loop
         chr_found = False
         batch_n = 1
-        fdw = open(outfile+ "/" + self.filename + ".off", 'w')
+        fdw = open(outfile+ "/" + self.filename.replace('.bed', '.off.bed'), 'w')
 
         while reading:
             batch, fd = self.get_batch(fd, 10000000)

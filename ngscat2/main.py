@@ -73,6 +73,10 @@ def parse_arguments():
     parser.add_option("--reference", dest="reference",
                       help="""Optional. String indicating the path to a .fasta file containing the reference chromosomes. Default=None.""",
                       default=None)
+
+    parser.add_option("--annotation", dest="annotation",
+                      help="""Optional. String indicating the path to a .bed file containing annotated . Default=None.""",
+                      default=None)
     # parser.add_option("--saturation", dest="saturation",
     #                   help="""Optional. {y,n} to indicate whether saturation curve should be calculated. Default=n.""",
     #                   default='n')
@@ -354,9 +358,9 @@ def generate_report(options, config):
 
         mainpool.apply_async(GcBiasProcessor().process, args=(ns.coveragefiles, options.reference), callback=gcbiasreporter.report)
 
-    # Bedfiles off
+    # Bedfiles off and annotation.
     offbedreporter = OffBed(options.outdir)
-    mainpool.apply_async(offbedreporter.report, args=(config.getconfig()['offtargetoffset'], config.getconfig()['offtargetthreshold'], options.bed)).get()
+    mainpool.apply_async(offbedreporter.report, args=(config.getconfig()['offtargetoffset'], config.getconfig()['offtargetthreshold'], options.bed, options.annotation)).get()
 
     #Waits until all threads are finished
     mainpool.close()
@@ -366,6 +370,11 @@ def generate_report(options, config):
     #Html generation
     mainReporter.report(options)
 
+
+
+    # #Bed annotation
+    # if options.annotation is not None:
+    #     d
 
 #TODO gnerate json with config arguments.
 def generate_json(outdir):

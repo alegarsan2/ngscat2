@@ -598,13 +598,13 @@ class bam_file(pysam.Samfile):
                         #newFileName = prefixFile + '.' + str(currentChromosome) + '.' #+ components[-1]
 
                         filename = self.filename.decode("utf-8").split("/")[-1].split(".")[0]
-                        newFileName ='.' + filename + '.' + str(currentChromosome)
+                        newFileName = filename + '.' + str(currentChromosome) + '.bed'
 
-                        newFileNameFULL =bedGraphFile+ "/" + newFileName
+                        newFileNameFULL =bedGraphFile+ "/data/" + newFileName
                         fdw_bedGraph = open(newFileNameFULL, 'w')
-                        fdw_bedGraph.write('track type=bedGraph name=coverage_' + str(currentChromosome) + filename
-                                           + '" description="coverage per position for ' + filename + ' chromosome ' +
-                                           str(currentChromosome) + '"\n')
+                        # fdw_bedGraph.write('track type=bedGraph name=coverage_' + str(currentChromosome) + filename
+                        #                    + '" description="coverage per position for ' + filename + ' chromosome ' +
+                        #                    str(currentChromosome) + '"\n')
 
                         positionArray_bedGraph = positionArray - 1  # BED GRAPH displays in base 1, although data must use 0-base indexing (http://genome.ucsc.edu/FAQ/FAQtracks#tracks1). See format of bedgraph http://genome.ucsc.edu/goldenPath/help/bedgraph.html
                         coverageArray_bedGraph = coverageArray
