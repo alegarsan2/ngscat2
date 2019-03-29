@@ -75,7 +75,7 @@ def parse_arguments():
                       default=None)
 
     parser.add_option("--annotation", dest="annotation",
-                      help="""Optional. String indicating the path to a .bed file containing annotated . Default=None.""",
+                      help="""Optional. String indicating the path to a .bed file containing annotated regions . Default=None.""",
                       default=None)
     # parser.add_option("--saturation", dest="saturation",
     #                   help="""Optional. {y,n} to indicate whether saturation curve should be calculated. Default=n.""",
