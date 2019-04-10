@@ -578,7 +578,7 @@ class bam_file(pysam.Samfile):
                             positionArray.append(position)
                             coverageArray.append(coverageArray[-1] + partialSum)
 
-                        pbarIter = indexInit + indexEnd
+                         #pbarIter = indexInit + indexEnd
                     # pbar.update(pbarIter)
                     # pbar.finish()
 

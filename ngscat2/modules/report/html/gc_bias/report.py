@@ -68,7 +68,7 @@ class Report():
                 # reversescale=True,
                 opacity=0.9,
                 contours= dict(showlines=False),
-                colorbar= dict(showticklabels=False, title='Density')
+                colorbar= dict(showticklabels=False, titleside='right', title='Density')
             )]
 
         layout_comp = go.Layout(
@@ -90,9 +90,9 @@ class Report():
                 nticks=7
             ),
             margin=go.layout.Margin(
-                l=40,
+                l=50,
                 r=30,
-                b=30,
+                b=50,
                 t=50,
             ),
         )
