@@ -93,7 +93,9 @@ class Report():
                     color=colors[i],
                 ),
                 boxpoints='suspectedoutliers',
-                jitter=0.01)
+                jitter=0.01,
+                boxmean=True)
+
             data.append(trace)
 
         layout_comp = go.Layout(
