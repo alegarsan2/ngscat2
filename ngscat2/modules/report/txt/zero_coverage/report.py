@@ -1,15 +1,28 @@
+import os
+import subprocess
 
 class Report():
     def __init__(self, outdir):
-        self.outdir = outdir
+        self.outdir = outdir + '/data'
 
-    def report(self, coveragefiles):
+    def report(self, results):
         '''Generate Nocoverage.txt of regions within targets that have Zero coverage.
         Input: Coveragefile object, outdir '''
+        coveragefiles = results[0]
+        annotation = results[1]
         for coveragefile in coveragefiles:
-            zerosProcessor = ZeroesProcessor(coveragefile, self.outdir + "/data/NoCoverage.txt")
+            zerosProcessor = ZeroesProcessor(coveragefile, self.outdir + "/NoCoverage.txt")
             coveragefile.iterateOverRegions(zerosProcessor.process)
             zerosProcessor.file.close()
+
+        '''Annotation of NoCoverageBed'''
+        if annotation is not None:
+            bedname = "NoCoverage.txt"
+
+            subprocess.run("bedmap --echo --delim \'\\t\' --echo-map-id-uniq " + os.path.join(self.outdir, bedname) \
+                            + " " + annotation + " > " + os.path.join(self.outdir, bedname.replace(".txt", ".annotated.txt")), shell = True)
+            os.remove(os.path.join(self.outdir, bedname))
+
 
 class ZeroesProcessor():
     def __init__(self, coveragefile, outdir):

@@ -346,8 +346,7 @@ def generate_report(options, config):
     #Uniformity: Nocoverage txt
 
     zerocoveragereporter = ZeroCoverageTxt(options.outdir).report
-    mainpool.apply_async(RegionsWithZeroesProcessor, args=(ns.coveragefiles, zerocoveragereporter))
-
+    mainpool.apply_async(RegionsWithZeroesProcessor(options.annotation).process, args=(ns.coveragefiles), callback= zerocoveragereporter).get()
 
 
     # Uniformity(optional): GC Bias reference required

@@ -3,9 +3,11 @@
 
 class RegionsWithZeroesProcessor():
     #Enter attribute coveragelist of coverage object
-    def __init__(self, coveragefiles, callback):
-        callback(coveragefiles)
+    def __init__(self, annotation):
+        self.annotation = annotation
 
+    def process(self, coveragefiles):
+        return [coveragefiles], self.annotation
 # class RegionsWithZeroesProcessor():
 #     def __init__(self, coveragefile, outdir):
 #         self.file = open(outdir, "w")
