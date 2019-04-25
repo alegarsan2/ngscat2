@@ -31,13 +31,14 @@ class ZeroesProcessor():
                         initzero = idx
                 else:
                     if initzero is not None:
-                        self.file.write("\t".join(map(str,[chromosome.name, initzero + region.start, idx + region.start])) + "\n")
+                        self.file.write("\t".join(map(str,[chromosome.name, initzero + region.start, idx-1 + region.start])) + "\n")
                         initzero = None
             else:
-                if basecoverage == 0 and initzero is not None:
-                    self.file.write("\t".join(map(str,[chromosome.name, initzero + region.start, idx + region.start]))+ "\n")
-                else:
-                    self.file.write("\t".join(map(str,[chromosome.name, idx + region.start, idx + region.start]))+ "\n")
+                if basecoverage == 0:
+                    if initzero is not None: #Current 0 region
+                        self.file.write("\t".join(map(str,[chromosome.name, initzero + region.start, idx + region.start]))+ "\n")
+                    else: #Last base with 0 coverage
+                        self.file.write("\t".join(map(str,[chromosome.name, idx + region.start, idx + region.start]))+ "\n")
 
 # from 'report/html/depth_stdev/' import Reporter
 # from depth_stdev_computer
