@@ -102,7 +102,7 @@ class Report():
             hovermode='closest',
             # barmode='group',
             xaxis=dict(showticklabels=True, showgrid=True, title=''),
-            yaxis=dict(autorange=True, type='log'),
+            yaxis=dict(autorange=True, type='log', tickvals=[0, 1]),
             margin=go.layout.Margin(
                 l=50,
                 r=10,
