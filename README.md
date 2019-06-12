@@ -77,4 +77,12 @@ Options:
                         threads to launch. Default=cpu_count() - 1.
 ```
 
+# Input data
+Here an example of input data can he downloaded.
+
+* Hg0097 alignment data BAM http://ngscat.clinbioinfosspa.es/_media/ngscat/download/hg00097.bam  
+* Region of interest file BED ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/exome_pull_down_targets/20130108.exome.targets.bed
+* Reference genome (for --reference option) http://ngscat.clinbioinfosspa.es/_media/ngscat/download/hg19.wochr.tar.gz
+* Annotated bed (for --annotation option) 
+#Output example
 
