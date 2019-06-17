@@ -22,7 +22,7 @@ In Ubuntu, Mint and Debian you can install Python 3 like this:
     
 - **Samtools**
 samtools 1.7 using htslib 1.7.2
-Samtools webpage https://github.com/samtools/samtools
+Samtools webpage http://www.htslib.org/download/
 ```
 sudo apt-get install samtools=1.7-1
 
@@ -30,9 +30,7 @@ sudo apt-get install samtools=1.7-1
 - **Bedops version 2.4.25 or greater**
 Bedops webpage https://bedops.readthedocs.io/en/latest/content/revision-history.html#v2-4-35
 
-
-## 
-
+ 
 ## Installation
 For the installation of the tool just only run:
 
@@ -83,6 +81,7 @@ Here an example of input data can he downloaded.
 * Hg0097 alignment data BAM http://ngscat.clinbioinfosspa.es/_media/ngscat/download/hg00097.bam  
 * Region of interest file BED ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/technical/reference/exome_pull_down_targets/20130108.exome.targets.bed
 * Reference genome (for --reference option) http://ngscat.clinbioinfosspa.es/_media/ngscat/download/hg19.wochr.tar.gz
-* Annotated bed (for --annotation option) 
+* Annotated bed (for --annotation option)  https://mega.nz/#!f2oRxI7Z!QUSRErtvwNGs2tfpwRWjiPZQkOEhRQhaWtXhkmXXpEM
 #Output example
 
+Exome example https://mega.nz/#!eywTGCBL!6HTDl7J9eLY4VhX2aFfe57Cp9mvwLw4JTcDcHr-zu1A
