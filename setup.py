@@ -23,7 +23,7 @@ setup(name='ngsCAT2',
       license='MIT',
       packages=find_packages(),
       install_requires=[
-                        'certifi==2018.10.15',
+                        'certifi==2022.12.7',
                         'chardet==3.0.4',
                         'decorator==4.3.0',
                         'idna==2.7',
